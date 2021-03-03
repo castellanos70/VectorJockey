@@ -15,7 +15,7 @@
 <body>
 <div style="display:none">
     <img id="shipImage" src="../image/ship.png" />
-    <img id="stationImage" src="../image/station-128x128.png" />
+    <img id="stationImage" src="../image/station.png" />
     <img id="gateImage" src="../image/gate.png" />
 
 </div>
@@ -59,8 +59,10 @@ var zoomGoal = zoomScale;
 var zoomOrg = zoomScale;
 var lerpTime = 0.75;
 var zoomTime = 0;
+
 var offsetX = 0;
 var offsetY = 0;
+
 var isDrag = false;
 var dragX=0, dragY=0;
 var canvasImage, canvasData, canvasBuf;
@@ -277,7 +279,7 @@ function render()
 
     let counterclockwise = false;
     if (shipAngularSpeed < 0) counterclockwise = true;
-    let radius = 100 * zoomScale;
+    let radius = 150 * zoomScale;
     let startAngle = ship.heading * degreesToRad;
     let endAngle = (ship.heading + shipAngularSpeed * 15) * degreesToRad;
     ctx.beginPath();
@@ -333,14 +335,14 @@ function renderThrust(ship)
         ctx.setTransform(1, 0, 0, 1, 0, 0);
         ctx.translate(x, y);
         ctx.rotate(ship.heading*degreesToRad);
-        ctx.translate(-18*zoomScale, +18*zoomScale);
+        ctx.translate(-28*zoomScale, +30*zoomScale);
         ctx.rotate(-90*degreesToRad);
         thrustSystemCWB.render();
 
         ctx.setTransform(1, 0, 0, 1, 0, 0);
         ctx.translate(x, y);
         ctx.rotate(ship.heading*degreesToRad);
-        ctx.translate(+26*zoomScale, -12*zoomScale);
+        ctx.translate(+39*zoomScale, -23*zoomScale);
         ctx.rotate(90*degreesToRad);
         thrustSystemCWF.render();
     }
@@ -351,14 +353,14 @@ function renderThrust(ship)
         ctx.setTransform(1, 0, 0, 1, 0, 0);
         ctx.translate(x, y);
         ctx.rotate(ship.heading*degreesToRad);
-        ctx.translate(-17*zoomScale, -18*zoomScale);
+        ctx.translate(-27*zoomScale, -30*zoomScale);
         ctx.rotate(90*degreesToRad);
         thrustSystemCWB.render();
 
         ctx.setTransform(1, 0, 0, 1, 0, 0);
         ctx.translate(x, y);
         ctx.rotate(ship.heading*degreesToRad);
-        ctx.translate(26*zoomScale, 12*zoomScale);
+        ctx.translate(39*zoomScale, 23*zoomScale);
         ctx.rotate(-90*degreesToRad);
         thrustSystemCWF.render();
     }
@@ -547,14 +549,16 @@ function mouseMove(event)
 
 function dragWorld(dx,dy)
 {
-    offsetX += dx/zoomScale;
-    offsetY += dy/zoomScale;
+    offsetX += dx / zoomScale;
+    offsetY += dy / zoomScale;
+
     //console.info("dragWorld : offsetX=" + offsetX + "    maxX + canvasWidth/2*zoomScale=" + (maxX + canvasWidth/4*zoomScale));
     //console.info("dragWorld : offsetX=" + offsetX + "    minX + canvasWidth/2/zoomScale=" + (minX + canvasWidth/2/zoomScale));
-    if (offsetX > maxX + (canvasWidth/4)/zoomScale) offsetX = maxX + (canvasWidth/4)/zoomScale;
-    if (offsetY > maxY + (canvasHeight/4)/zoomScale) offsetY = maxY + (canvasHeight/4)/zoomScale;
-    if (offsetX < minX + (canvasWidth/2)/zoomScale) offsetX = minX + (canvasWidth/2)/zoomScale;
-    if (offsetY < minY + (canvasHeight/2)/zoomScale) offsetY = minY + (canvasHeight/2)/zoomScale;
+    if (offsetX > maxX + (canvasWidth / 4) / zoomScale) offsetX = maxX + (canvasWidth / 4) / zoomScale;
+    if (offsetY > maxY + (canvasHeight / 4) / zoomScale) offsetY = maxY + (canvasHeight / 4) / zoomScale;
+    if (offsetX < minX + (canvasWidth / 2) / zoomScale) offsetX = minX + (canvasWidth / 2) / zoomScale;
+    if (offsetY < minY + (canvasHeight / 2) / zoomScale) offsetY = minY + (canvasHeight / 2) / zoomScale;
+
     //console.info("         : offset=  (" + offsetX + ", " + offsetY + ")");
 }
 
@@ -581,7 +585,7 @@ function zoom(code)
 
     let scale0 = zoomScale;
     if (clockSec - zoomTime >= lerpTime) zoomScale = zoomGoal;
-    else zoomScale = zoomOrg + (clockSec - zoomTime) * (zoomGoal - zoomOrg) / lerpTime
+    else zoomScale = zoomOrg + (clockSec - zoomTime) * (zoomGoal - zoomOrg) / lerpTime;
 
     let shiftFactor = 1.0 / zoomScale - 1.0 / scale0;
     offsetX = (canvasWidth / 2.0) * shiftFactor + offsetX;
