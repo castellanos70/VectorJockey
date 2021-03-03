@@ -1,0 +1,15 @@
+# WebStorm IDE files
+.idea/
+
+# System files
+Thumbs.db
+
+#Vim backup files
+*~
+*.swp
+
+#Uncontrolled project files
+uncontrolled/
+web
+
+
