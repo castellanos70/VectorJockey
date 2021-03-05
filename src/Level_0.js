@@ -77,9 +77,9 @@ class Level_0
         {
             shipAngularSpeed = 0;
             shipSpeedY = 0;
-            if (!(shipState & ShipStateEnum.BACK)) undoMove = true;
-            if (shipState & ShipStateEnum.CLOCKWISE) shipState -= ShipStateEnum.CLOCKWISE;
-            if (shipState & ShipStateEnum.COUNTERCLOCKWISE) shipState -= ShipStateEnum.COUNTERCLOCKWISE;
+            if (shipState !== ShipStateEnum.BACK) undoMove = true;
+            //if (shipState & ShipStateEnum.CLOCKWISE) shipState -= ShipStateEnum.CLOCKWISE;
+            //if (shipState & ShipStateEnum.COUNTERCLOCKWISE) shipState -= ShipStateEnum.COUNTERCLOCKWISE;
         }
         else if (gameTime < 71)
         {
@@ -106,6 +106,7 @@ class Level_0
         }
         else if (gameTime < 143)
         {
+            if (shipState !== ShipStateEnum.BACK) undoMove = true;
         }
         if (undoMove)
         {
@@ -324,11 +325,19 @@ class Level_0
                 {
                     return "Press W to toggle Main Thruster on.";
                 }
-                return "Press or Hold down *spacebar* to until ship comes to rest."
-            case 13: return "One shot of counterclockwise thrust (A) with main thruster (W)";
-            case 14: return "When the azure line crosses a gate, you\'re golden: just coast!";
+                if (shipState & ShipStateEnum.COUNTERCLOCKWISE)
+                {
+                    return "Press A to toggle Counterclockwise Thruster OFF."
+                }
+                if (shipState & ShipStateEnum.CLOCKWISE)
+                {
+                    return "Press D to toggle Clockwise Thruster OFF."
+                }
+                return "With main thruster on, press *spacebar*   until ship comes to rest."
+            case 14: return "One shot of counterclockwise thrust (A) with main thruster (W)";
+            case 15: return "When the azure line crosses a gate, you\'re golden: just coast!";
             default:
-                if (gatesCompleted < 3) return "Continue through the last gate.!";
+                if (gatesCompleted < 3) return "Continue through the last gate!";
                 let rr = Math.random()
                 if (rr < 0.25) return "Try moving your ship around the arena.";
                 if (rr < 0.50) return "Press 0 to restart this tutorial.";

@@ -114,6 +114,5 @@ class Level_1
                 if (r<0.995) return "Every action produces an equal and opposite reaction.";
                 return "All forces occur in pairs: equal in magnitude and opposite in direction.";
         } //@formatter:on
-        return "";
     }
 }
