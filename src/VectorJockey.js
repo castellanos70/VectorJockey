@@ -7,34 +7,35 @@ var shipImage = new Image();
 var stationImage = new Image();
 var gateImage = new Image();
 var fileObject;
-var shipSpeedX=0;
-var shipSpeedY=0;
-var shipAngularSpeed = 0;
-var shipList = [];
-var gateList = [];
-var stationList = [];
+
+var shipList, gateList, stationList;
 var starList = [];
-var gatesCompleted = 0;
-var gameTime = 0;
+var currentLevel, level0, level1, level2;
+
+var shipSpeedX;
+var shipSpeedY;
+var shipAngularSpeed;
+var gatesCompleted;
+var gameTime;
+var isDrag, dragX, dragY;
+
+var zoomScale, zoomGoal, zoomOrg, zoomTime;
+
+var offsetX, offsetY;
+
+var canvasImage, canvasData, canvasBuf;
+var game_font = new FontFace('RobotoMono', 'url(../data/RobotoMono-Regular.woff)');
+
 const minX = -4000;
 const maxX = 4000;
 const minY = -4000;
 const maxY = 4000;
-var zoomScale = 0.625;
-var zoomGoal = zoomScale;
-var zoomOrg = zoomScale;
-var lerpTime = 0.75;
-var zoomTime = 0;
-
-var offsetX = 0;
-var offsetY = 0;
-
-var isDrag = false;
-var dragX=0, dragY=0;
-var canvasImage, canvasData, canvasBuf;
-var game_font = new FontFace('RobotoMono', 'url(../data/RobotoMono-Regular.woff)');
+const LERP_TIME = 0.75;
 
 const PI2 = 2.0 * Math.PI;
+const KEY_0 = 48;
+const KEY_1 = 49;
+const KEY_2 = 50;
 const KEY_W = 87;
 const KEY_A = 65;
 const KEY_D = 68;
@@ -54,10 +55,9 @@ const GateStateEnum = {"OFF":0, "ON":1, "START_BREAKING":2, "BREAKING":3}
 const GameStateEnum = {"PLAYING":0, "WIN":1, "LOST":2}
 const degreesToRad = Math.PI/180.0;
 
-var gameState = GameStateEnum.PLAYING;
-var gameOverFrame = -1
-var shipState = ShipStateEnum.OFF;
-var movePending = false;
+var gameState, gameOverFrame = -1
+var shipState;
+var movePending;
 var clockSec;
 
 window.onload = function () {init();};
@@ -113,19 +113,22 @@ function init()
     canvasHeight = window.innerHeight;
     ctx.canvas.width = canvasWidth;
     ctx.canvas.height = canvasHeight;
-    offsetX = canvasWidth/2;
-    offsetY = canvasHeight/2;
-    //Adjust offset for the stating sim at zoom != 1
-    let shiftFactor = 1.0 / zoomScale - 1.0;
-    offsetX = (canvasWidth / 2.0) * shiftFactor + offsetX;
-    offsetY = (canvasHeight / 2.0) * shiftFactor + offsetY;
-
     canvasImage = ctx.getImageData(0, 0, canvasWidth, canvasHeight);
+
+    thrustSystemMain = new ThrustSystem(900, 11, 10);
+    thrustSystemCWB = new ThrustSystem(150, 2, 3);
+    thrustSystemCWF = new ThrustSystem(150, 2, 3);
+    thrustSystemCCB = new ThrustSystem(150, 2, 3);
+    thrustSystemCCF = new ThrustSystem(150, 2, 3);
+
+    level0 = new Level_0();
+    level1 = new Level_1();
+    initLevel(level0);
 
     game_font.load().then(function(loaded_face)
     {
         document.fonts.add(loaded_face);
-        isHelpVisible = true;
+        initHelp();
     }).catch(function(error) {
         // error occurred
     });
@@ -137,40 +140,52 @@ function init()
     fileObject.setRequestHeader("Content-Type",  "application/x-www-form-urlencoded");
     fileObject.send();
 
-    let ship = new Ship(0,0,0,ShipStateEnum.OFF);
-    shipList.push(ship);
-
-    gateList.push(new Gate(400,-250,0, 250, "#00900090"));
-    gateList.push(new Gate(3300,250,0, 400, "#A0000C90"));
-    gateList.push(new Gate(2000,700,80, 600, "#d181d990"));
-    gateList.push(new Gate(-2000,1000,30, 300, "#B8C41490"));
-    gateList.push(new Gate(-1200,-2200,45, 300, "#fd7f0290"));
-    gateList.push(new Gate(1200,-1900,15, 300, "#2832c290"));
-
-    thrustSystemMain = new ThrustSystem(900, 11, 10);
-    thrustSystemCWB = new ThrustSystem(150, 2, 3);
-    thrustSystemCWF = new ThrustSystem(150, 2, 3);
-    thrustSystemCCB = new ThrustSystem(150, 2, 3);
-    thrustSystemCCF = new ThrustSystem(150, 2, 3);
-
-    for (let k = 0.0; k < 5.0; k++)
-    {
-        let x = maxX * Math.cos(k * 2.0 * Math.PI / 5.0);
-        let y = maxY * Math.sin(k * 2.0 * Math.PI / 5.0);
-        stationList.push(new Station(k, x, y));
-    }
-
-    //Uses neighbor in calculation so must be done after list is fully constructed.
-    for (const station of stationList)
-    {
-        station.calculateLine();
-    }
 
     window.addEventListener('keydown', keyDown);
     window.addEventListener('mousedown', mouseDown);
     window.addEventListener('mousemove', mouseMove);
     window.addEventListener('mouseup', mouseUp);
     window.addEventListener('wheel', mouseWheel);
+}
+
+
+function initLevel(level)
+{
+    currentLevel = level;
+
+    shipSpeedX = 0;
+    shipSpeedY = 0;
+    shipAngularSpeed = 0;
+    gatesCompleted = 0;
+    gameTime = 0;
+    isDrag = false;
+    dragX=0
+    dragY=0;
+    helpCounter = 0;
+
+    zoomScale = 0.625;
+    zoomGoal = zoomScale;
+    zoomOrg = zoomScale;
+    zoomTime = 0;
+
+    offsetX = canvasWidth/2;
+    offsetY = canvasHeight/2;
+
+    //Adjust offset for the stating sim at zoom != 1
+    let shiftFactor = 1.0 / zoomScale - 1.0;
+    offsetX = (canvasWidth / 2.0) * shiftFactor + offsetX;
+    offsetY = (canvasHeight / 2.0) * shiftFactor + offsetY;
+
+    shipList=[];
+    gateList=[];
+    stationList = [];
+
+    gameState = GameStateEnum.PLAYING;
+    gameOverFrame = -1
+    shipState = ShipStateEnum.OFF;
+    movePending = false;
+
+    currentLevel.init();
 }
 
 //********************************** render loop *********************************************************************
@@ -198,17 +213,25 @@ function render()
             if ((gameOverFrame - gameTime) % 30 == 0) movePending = true;
         }
     }
+    if (currentLevel == level0) ship = level0.updateStatus(ship);
+    else
+    {
+        if (movePending)
+        {
+            if (gameState == GameStateEnum.PLAYING) gameTime++;
+            let ship0 = ship;
+            let shipX = ship0.x + shipSpeedX;
+            let shipY = ship0.y + shipSpeedY;
+            let heading = ship0.heading + shipAngularSpeed;
+            ship = new Ship(shipX, shipY, heading, shipState);
+            shipList.push(ship);
+            updateGates(ship0, ship);
+        }
+    }
+
     if (movePending)
     {
         movePending = false;
-        if (gameState == GameStateEnum.PLAYING) gameTime++;
-        let ship0 = ship;
-        let shipX = ship0.x + shipSpeedX;
-        let shipY = ship0.y + shipSpeedY;
-        let heading = ship0.heading + shipAngularSpeed;
-        ship = new Ship(shipX, shipY, heading, shipState);
-        shipList.push(ship);
-        updateGates(ship0, ship);
         checkBoundary(ship);
         if (shipState & ShipStateEnum.COUNTERCLOCKWISE)
         {
@@ -232,7 +255,29 @@ function render()
         renderGate(gate);
     }
     renderBoundary();
+    renderShipOverlay(ship);
 
+    if (isHelpVisible) //Cannot display until font is loaded
+    {
+        displayHelp();
+        displayStatus(ship);
+    }
+
+    requestAnimationFrameProtected();
+}
+
+function renderShip(ship)
+{
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.scale(zoomScale, zoomScale);
+    ctx.translate(offsetX+ship.x, offsetY+ship.y);
+    ctx.rotate(ship.heading*degreesToRad)
+    ctx.drawImage(shipImage,-shipImage.width/2, -shipImage.height/2);
+    ctx.fillStyle = "#A00000";
+}
+
+function renderShipOverlay(ship)
+{
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.beginPath();
     ctx.lineWidth = 1;
@@ -261,74 +306,24 @@ function render()
     ctx.beginPath();
     ctx.arc(x0, y0, radius, startAngle, endAngle, counterclockwise);
     ctx.stroke();
-
-    if (isHelpVisible) //Cannot display until font is loaded
-    {
-        displayHelp();
-        displayStatus();
-    }
-    requestAnimationFrameProtected();
-}
-
-function renderShip(ship)
-{
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
-    ctx.scale(zoomScale, zoomScale);
-    ctx.translate(offsetX+ship.x, offsetY+ship.y);
-    ctx.rotate(ship.heading*degreesToRad)
-    ctx.drawImage(shipImage,-shipImage.width/2, -shipImage.height/2);
-    ctx.fillStyle = "#A00000";
 }
 
 function renderThrust(ship)
 {
-    //ctx.fillStyle = "#A00000";
     if (shipState & ShipStateEnum.BACK)
     {
-        ctx.setTransform(1, 0, 0, 1, 0, 0);
-        let x = (offsetX+ship.x)*zoomScale;
-        let y = (offsetY+ship.y)*zoomScale;
-        ctx.translate(x, y);
-        ctx.rotate(ship.heading*degreesToRad);
-        ctx.translate(-(shipImage.width-4)*zoomScale/2, 0);
-        //ctx.fillRect(-25 - shipImage.width / 2, -1, 25/zoomScale, 3/zoomScale);
-        thrustSystemMain.render();
+        thrustSystemMain.render(ship, -(shipImage.width-4)/2, 0);
     }
+
     if (shipState & ShipStateEnum.CLOCKWISE)
     {
-        let x = (offsetX+ship.x)*zoomScale;
-        let y = (offsetY+ship.y)*zoomScale;
-        ctx.setTransform(1, 0, 0, 1, 0, 0);
-        ctx.translate(x, y);
-        ctx.rotate(ship.heading*degreesToRad);
-        ctx.translate(-28*zoomScale, +30*zoomScale);
-        ctx.rotate(-90*degreesToRad);
-        thrustSystemCWB.render();
-
-        ctx.setTransform(1, 0, 0, 1, 0, 0);
-        ctx.translate(x, y);
-        ctx.rotate(ship.heading*degreesToRad);
-        ctx.translate(+39*zoomScale, -23*zoomScale);
-        ctx.rotate(90*degreesToRad);
-        thrustSystemCWF.render();
+        thrustSystemCWB.render(ship, -28, 30, -90); //ship, dx, dy, rotation
+        thrustSystemCWF.render(ship, 39, -23, 90);
     }
     if (shipState & ShipStateEnum.COUNTERCLOCKWISE)
     {
-        let x = (offsetX+ship.x)*zoomScale;
-        let y = (offsetY+ship.y)*zoomScale;
-        ctx.setTransform(1, 0, 0, 1, 0, 0);
-        ctx.translate(x, y);
-        ctx.rotate(ship.heading*degreesToRad);
-        ctx.translate(-27*zoomScale, -30*zoomScale);
-        ctx.rotate(90*degreesToRad);
-        thrustSystemCWB.render();
-
-        ctx.setTransform(1, 0, 0, 1, 0, 0);
-        ctx.translate(x, y);
-        ctx.rotate(ship.heading*degreesToRad);
-        ctx.translate(39*zoomScale, 23*zoomScale);
-        ctx.rotate(-90*degreesToRad);
-        thrustSystemCWF.render();
+        thrustSystemCWB.render(ship, -27, -30, 90);
+        thrustSystemCWF.render(ship, 39, 23, -90);
     }
 }
 
@@ -429,7 +424,7 @@ function keyDown(event)
         else
         {
             helpMsg = "Counterclockwise thrusters disabled at maximum safe angular velocity.";
-            helpSec = -1;
+            helpSec = 0;
         }
 
     }
@@ -446,7 +441,7 @@ function keyDown(event)
         else
         {
             helpMsg = "Clockwise thrusters disabled at maximum safe angular velocity.";
-            helpSec = -1;
+            helpSec = 0;
         }
     }
     else if ((event.keyCode == KEY_SPACE) && (gameState == GameStateEnum.PLAYING))
@@ -475,8 +470,10 @@ function keyDown(event)
     else if (event.keyCode == KEY_DOWN_ARROW) dragWorld(0,-50);
     else if (event.keyCode == KEY_PLUS) zoom('+');
     else if (event.keyCode == KEY_MINUS) zoom('-');
-    else if (event.keyCode == KEY_H) helpCounter = 0;
-    else if (event.keyCode == KEY_ESC) helpCounter = 100;
+    else if (event.keyCode == KEY_H) helpCounter = 1;
+    else if (event.keyCode == KEY_ESC) helpCounter = 1000;
+    else if (event.keyCode == KEY_0) initLevel(level0)
+    else if (event.keyCode == KEY_1) initLevel(level1)
 }
 
 
@@ -526,6 +523,7 @@ function dragWorld(dx,dy)
     if (offsetY < minY + (canvasHeight / 2) / zoomScale) offsetY = minY + (canvasHeight / 2) / zoomScale;
 
     //console.info("         : offset=  (" + offsetX + ", " + offsetY + ")");
+    if ((level0.zoomInDone) && (!level0.dragDone)) level0.dragDone = true;
 }
 
 function mouseWheel(event)
@@ -550,8 +548,8 @@ function zoom(code)
     if (zoomScale === zoomGoal) return;
 
     let scale0 = zoomScale;
-    if (clockSec - zoomTime >= lerpTime) zoomScale = zoomGoal;
-    else zoomScale = zoomOrg + (clockSec - zoomTime) * (zoomGoal - zoomOrg) / lerpTime;
+    if (clockSec - zoomTime >= LERP_TIME) zoomScale = zoomGoal;
+    else zoomScale = zoomOrg + (clockSec - zoomTime) * (zoomGoal - zoomOrg) / LERP_TIME;
 
     let shiftFactor = 1.0 / zoomScale - 1.0 / scale0;
     offsetX = (canvasWidth / 2.0) * shiftFactor + offsetX;
@@ -566,10 +564,14 @@ function updateGates(ship0, ship)
     for (const gate of gateList)
     {
         let clearedGate = false;
-        if ((gate.x1 > ship0.x) && (gate.x1 > ship.x)) continue;
-        if ((gate.y1 > ship0.y) && (gate.y1 > ship.y)) continue;
-        if ((gate.x2 < ship0.x) && (gate.x2 < ship.x)) continue;
-        if ((gate.y2 < ship0.y) && (gate.y2 < ship.y)) continue;
+        let gateMinX = Math.min(gate.x1,gate.x2);
+        let gateMaxX = Math.max(gate.x1,gate.x2);
+        let gateMinY = Math.min(gate.y1,gate.y2);
+        let gateMaxY = Math.max(gate.y1,gate.y2);
+        if ((gateMinX > ship0.x) && (gateMinX > ship.x)) continue;
+        if ((gateMinY > ship0.y) && (gateMinY > ship.y)) continue;
+        if ((gateMaxX < ship0.x) && (gateMaxX < ship.x)) continue;
+        if ((gateMaxY < ship0.y) && (gateMaxY < ship.y)) continue;
 
         let yy0 = gate.slope * ship0.x + gate.yIntercept;
         let yy  = gate.slope * ship.x + gate.yIntercept;
@@ -591,17 +593,7 @@ function updateGates(ship0, ship)
         {
             gatesCompleted++;
             gate.state = GateStateEnum.START_BREAKING;
-            helpSec = -1;
-            if (helpCounter < 8) helpCounter = 8;
-            if (gatesCompleted == 1) helpMsg = "Congratulations! You have cleared the first Gate.";
-            else if (gatesCompleted == 2) helpMsg = "Two down, Three to go (clear 5 of 6 to finish)";
-            else if (gatesCompleted == 3) helpMsg = "That makes Three!";
-            else if (gatesCompleted == 4) helpMsg = "BAM! One more.";
-            else
-            {
-                helpMsg = "CONGRATULATIONS! Spaceflight Time-trial Completedw";
-                gameState = GameStateEnum.WIN;
-            }
+            currentLevel.clearedGate();
         }
     }
 }

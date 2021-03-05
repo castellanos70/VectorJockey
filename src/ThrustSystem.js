@@ -41,8 +41,18 @@ class ThrustSystem
         this.color[i] = colorList[Math.floor(colorList.length*(this.vx[i]-minV)/(maxV-minV))];
     }
 
-    render()
+    render(ship, dx, dy, theta)
     {
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+
+        let x = (offsetX+ship.x)*zoomScale;
+        let y = (offsetY+ship.y)*zoomScale;
+
+        ctx.translate(x, y);
+        ctx.rotate(ship.heading*degreesToRad);
+        ctx.translate(dx*zoomScale, dy*zoomScale);
+        if (theta) ctx.rotate(theta*degreesToRad);
+
         let m = 0.5*this.x.length;
         for (let i=0; i<this.x.length; i++)
         {
