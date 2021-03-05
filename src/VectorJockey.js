@@ -162,6 +162,7 @@ function initLevel(level)
     dragX=0
     dragY=0;
     helpCounter = 0;
+    helpSec = -1;
 
     zoomScale = 0.625;
     zoomGoal = zoomScale;
@@ -423,7 +424,7 @@ function keyDown(event)
         }
         else
         {
-            helpMsg = "Counterclockwise thrusters disabled at maximum safe angular velocity.";
+            helpMsg = "Counterclockwise thrusters disabled. Maximum safe angular speed: 15°/timestep.";
             helpSec = 0;
         }
 
@@ -440,7 +441,7 @@ function keyDown(event)
         }
         else
         {
-            helpMsg = "Clockwise thrusters disabled at maximum safe angular velocity.";
+            helpMsg = "Clockwise thrusters disabled. Maximum safe angular speed: 15°/timestep.";
             helpSec = 0;
         }
     }
