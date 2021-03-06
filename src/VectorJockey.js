@@ -24,7 +24,7 @@ var zoomScale, zoomGoal, zoomOrg, zoomTime;
 var offsetX, offsetY;
 
 var canvasImage, canvasData, canvasBuf;
-var game_font = new FontFace('RobotoMono', 'url(../data/RobotoMono-Regular.woff)');
+var game_font = new FontFace('RobotoMono', 'url(data/RobotoMono-Regular.woff)');
 
 const minX = -4000;
 const maxX = 4000;
@@ -136,7 +136,7 @@ function init()
     fileObject = new XMLHttpRequest();
 
     fileObject.onreadystatechange = function() {readStars();};
-    fileObject.open("GET", "../data/BrightStarCatalog.csv", true);
+    fileObject.open("GET", "data/BrightStarCatalog.csv", true);
     fileObject.setRequestHeader("Content-Type",  "application/x-www-form-urlencoded");
     fileObject.send();
 

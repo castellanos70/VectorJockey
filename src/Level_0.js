@@ -78,8 +78,6 @@ class Level_0
             shipAngularSpeed = 0;
             shipSpeedY = 0;
             if (shipState !== ShipStateEnum.BACK) undoMove = true;
-            //if (shipState & ShipStateEnum.CLOCKWISE) shipState -= ShipStateEnum.CLOCKWISE;
-            //if (shipState & ShipStateEnum.COUNTERCLOCKWISE) shipState -= ShipStateEnum.COUNTERCLOCKWISE;
         }
         else if (gameTime < 71)
         {
@@ -104,7 +102,7 @@ class Level_0
                 else if (!(shipState & ShipStateEnum.BACK)) undoMove = true;
             }
         }
-        else if (gameTime < 143)
+        else if (gameTime < 126)
         {
             if (shipState !== ShipStateEnum.BACK) undoMove = true;
         }
@@ -143,8 +141,7 @@ class Level_0
         else if (gatesCompleted == 2) helpMsg = "You have cleared the second Gate.";
         else
         {
-            helpMsg = "CONGRATULATIONS! Tutorial Completed.";
-            gameState = GameStateEnum.WIN;
+            helpMsg = "wadsww ww.";
         }
     }
 
