@@ -11,11 +11,11 @@ class Level_1
         shipList.push(ship);
 
         gateList.push(new Gate(400, -250, 0, 350, "#00900090"));
-        gateList.push(new Gate(3300, 250, 0, 400, "#A0000C90"));
-        gateList.push(new Gate(2000, 700, 80, 600, "#d181d990"));
-        gateList.push(new Gate(-2000, 1000, 30, 300, "#B8C41490"));
-        gateList.push(new Gate(-1200, -2200, 45, 300, "#fd7f0290"));
-        gateList.push(new Gate(1200, -1900, 15, 300, "#2832c290"));
+        gateList.push(new Gate(2400, 750, 0, 400, "#A0000C90"));
+        gateList.push(new Gate(800, 2100, 80, 600, "#d181d990"));
+        gateList.push(new Gate(-2000, 1000, 30, 400, "#B8C41490"));
+        gateList.push(new Gate(-1200, -2200, 165, 500, "#fd7f0290"));
+        gateList.push(new Gate(1200, -1900, 50, 500, "#2832c290"));
 
         for (let k = 0.0; k < 5.0; k++)
         {
@@ -36,7 +36,7 @@ class Level_1
     {
         helpSec = 0;
         if (helpCounter < 8) helpCounter = 8;
-        if (gatesCompleted == 1) helpMsg = "Congratulations! You have cleared the first Gate.";
+        if (gatesCompleted == 1) helpMsg = "o()xxxx[{:::::::::::::::::::> You have cleared the first Gate.";
         else if (gatesCompleted == 2) helpMsg = "Two down, Three to go (clear 5 of 6 to finish)";
         else if (gatesCompleted == 3) helpMsg = "(#^.^#) That makes Three!";
         else if (gatesCompleted == 4) helpMsg = "(o|o) BAM! One more.";
@@ -64,7 +64,7 @@ class Level_1
         helpCounter++;
         switch(helpCounter)
         {   //@formatter:off
-            case 1: return "Vector Jockey: *** Level 1 ***";
+            case 1: return "Vector Jockey >>------> Level 1";
             case 2: return "Goal: Pilot ship through your choice of 5 gates ...";
             case 3: return "... in less time-steps than any competitor.";
             case 4: return "Be careful not to build up too much speed:";
@@ -78,7 +78,7 @@ class Level_1
             case 12: return "Cars turn & break using friction between tires & road.";
             case 13: return "Airplanes turn & break using ailerons & rudders pushing on air.";
             case 14: return "In empty space, there is nothing to push on.";
-            case 15: return "                                            ";
+            case 15: return "                                                               ";
             case 16: return "Your ship uses Newton\'s 3rd Law:";
             case 17: return "Any force of one object on another ...";
             case 18: return "... is paired with an equal and opposite force, ...";
@@ -89,12 +89,12 @@ class Level_1
             case 23: return "In the air, the Earth pulls the jumper with the force of gravity."
             case 24: return "The jumper pulls the Earth with equal & opposite gravitational force.";
             case 25: return "Newton\'s 2nd law, F=ma, says the jumper gets more acceleration.";
-            case 26: return "(＠_＠;)";
+            case 26: return "¯\\(°_o)/¯";
             case 27: return "If a B\'-ball player jumped off the side of a small spacecraft ... ";
             case 28: return "... the spacecraft would move measurably in the opposite direction.";
             case 29: return "A rocket fires low mass particles at super high velocity.";
             case 30: return "The fast particles accelerate the rocket in the opposite direction.";
-            case 31: return "                                              ";
+            case 31: return "                                                                   ";
             case 32: return "Have fun and may the ma be with you!";
             default:
                 let r = Math.random();
@@ -109,7 +109,7 @@ class Level_1
                 if (r<0.97) return "Rotational thrusters have no effect on direction of motion.";
                 if (r<0.975) return "¸.·´¯`·.´¯`·.¸¸.·´¯`·.¸><(((º>";
                 if (r<0.98) return "F = ma";
-                if (r<0.985) return "Force = mass ✕ acceleration";
+                if (r<0.985) return "Force = mass × acceleration";
                 if (r<0.99) return "A body remains in motion in a straight line unless acted upon by a force.";
                 if (r<0.995) return "Every action produces an equal and opposite reaction.";
                 return "All forces occur in pairs: equal in magnitude and opposite in direction.";

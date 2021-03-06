@@ -224,6 +224,8 @@ function render()
             let shipX = ship0.x + shipSpeedX;
             let shipY = ship0.y + shipSpeedY;
             let heading = ship0.heading + shipAngularSpeed;
+            if (heading <= -180) heading = 360 + heading;
+            else if (heading > 180) heading = heading - 360;
             ship = new Ship(shipX, shipY, heading, shipState);
             shipList.push(ship);
             updateGates(ship0, ship);

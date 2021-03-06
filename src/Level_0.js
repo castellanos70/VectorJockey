@@ -141,7 +141,7 @@ class Level_0
         else if (gatesCompleted == 2) helpMsg = "You have cleared the second Gate.";
         else
         {
-            helpMsg = "wadsww ww.";
+            helpMsg = "CONGRATULATIONS! Tutorial Completed.";
         }
     }
 
@@ -152,8 +152,8 @@ class Level_0
         {
             if (helpCounter < 1000) helpCounter = 1000;
             helpCounter++;
-            switch (helpCounter) //@formatter:off
-            {
+            switch (helpCounter)
+            { //@formatter:off
                 case 1001: return "Ship center has crossed the boundary: GAME OVER";
                 case 1002: return "Press 0 to restart tutorial";
                 default:
@@ -164,9 +164,9 @@ class Level_0
 
         let ship = shipList[shipList.length - 1];
         helpCounter++;
-        switch (helpCounter) //@formatter:off
-        {
-            case 1: return ":.:.: Level 0 :.:.: The Tutorial";
+        switch (helpCounter)
+        {   //@formatter:off
+            case 1: return "Level 0 :.:.:.:.:.: The Tutorial :.:.:.:.:.:";
             case 2: return "At any time, if you want to skip tutorial, press 1.";
             case 3: return "At any time, if you want to restart tutorial, press 0.";
             case 4: return "Level 0 consists of your ship, 3 gates and a boundary.";
@@ -313,7 +313,7 @@ class Level_0
             case 10: return "Your ship has barely enough space to stop before ...";
             case 12: return "... its center crosses the boundary pentagon.";
             case 13:
-                if (shipSpeedX <= 3)
+                if (shipSpeedX <= 0)
                 {
                     return "Coolio. Ready for the last gate?";
                 }
@@ -330,9 +330,10 @@ class Level_0
                 {
                     return "Press D to toggle Clockwise Thruster OFF."
                 }
-                return "With main thruster on, press *spacebar*   until ship comes to rest."
+                return "With main thruster on, press *spacebar*  until ship comes to rest."
             case 14: return "One shot of counterclockwise thrust (A) with main thruster (W)";
             case 15: return "When the azure line crosses a gate, you\'re golden: just coast!";
+            case 16: return "When coasting, the ship spinning has no effect on direction.";
             default:
                 if (gatesCompleted < 3) return "Continue through the last gate!";
                 let rr = Math.random()
@@ -340,7 +341,6 @@ class Level_0
                 if (rr < 0.50) return "Press 0 to restart this tutorial.";
                 if (rr < 0.75) return "Press 1 to begin level 1.";
                 return "";
-
         } //@formatter:on
     }
 }
