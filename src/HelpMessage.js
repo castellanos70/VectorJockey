@@ -61,6 +61,7 @@ function initHelp()
 
 function displayHelp()
 {
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.font = helpFontSize + " RobotoMono";
 
     let matchCount = getMatchCountFromStart(helpMsg, helpCharList);

@@ -10,8 +10,8 @@ class Gate
         this.distance = distance;
         this.state = GateStateEnum.ON;
         this.color = color;
-        let dx = Math.round(0.5*distance*Math.cos(heading*degreesToRad));
-        let dy = Math.round(0.5*distance*Math.sin(heading*degreesToRad));
+        let dx = Math.round(0.5*distance*Math.cos(heading*DEGREES_TO_RAD));
+        let dy = Math.round(0.5*distance*Math.sin(heading*DEGREES_TO_RAD));
         this.x1 = x-dx;
         this.y1 = y-dy;
         this.x2 = x+dx;

@@ -1,4 +1,4 @@
-class Level_1
+class Level_2
 {
     constructor()
     {
@@ -7,20 +7,19 @@ class Level_1
 
     init()
     {
-        minX = -3000;
-        maxX = 3000;
-        minY = -3000;
-        maxY = 3000;
-
-        let ship = new Ship(0, 0, 0, ShipStateEnum.BACK);
+        minX = -5000;
+        maxX = 5000;
+        minY = -5000;
+        maxY = 5000;
+        let ship = new Ship(0, 0, 0, ShipStateEnum.OFF);
         shipList.push(ship);
 
-        gateList.push(new Gate(500, -200, 80, 600, "#B8C41490"));
-        gateList.push(new Gate(-500, -350, 0, 350, "#00900090"));
-        gateList.push(new Gate(800, -300, 165, 400, "#A0000C90"));
-        gateList.push(new Gate(-700, 400, 45, 600, "#d181d990"));
-        gateList.push(new Gate(100, 700, 165, 500, "#fd7f0290"));
-        //gateList.push(new Gate(1200, -1900, 50, 500, "#2832c290"));
+        gateList.push(new Gate(0, -250, 0, 600, "#00900090"));
+        gateList.push(new Gate(2400, 750, 0, 400, "#A0000C90"));
+        gateList.push(new Gate(800, 2100, 80, 600, "#d181d990"));
+        gateList.push(new Gate(-2000, 1000, 30, 400, "#B8C41490"));
+        gateList.push(new Gate(-1200, -2200, 165, 500, "#fd7f0290"));
+        gateList.push(new Gate(1200, -1900, 50, 500, "#2832c290"));
 
         for (let k = 0; k < 5; k++)
         {
