@@ -45,10 +45,10 @@ class Level_1
     {
         helpSec = 0;
         if (helpCounter < 8) helpCounter = 8;
-        if (gatesCompleted == 1) helpMsg = "o()xxxx[{:::::::::::::::::::> You have cleared the first Gate.";
-        else if (gatesCompleted == 2) helpMsg = "Two down, Three to go (clear 5 of 6 to finish)";
-        else if (gatesCompleted == 3) helpMsg = "(#^.^#) That makes Three!";
-        else if (gatesCompleted == 4) helpMsg = "(o|o) BAM! One more.";
+        if (gatesCompleted == 1) helpMsg = "First Gate Cleared! \\,,/(^_^)\\,,/";
+        else if (gatesCompleted == 2) helpMsg = "Second Gate Cleared!  --~~~=:>[XXXXXXXXX]>";
+        else if (gatesCompleted == 3) helpMsg = "Third Gate Cleared! ¸.·´¯`·.´¯`·.¸¸.·´¯`·.¸><(((º>";
+        else if (gatesCompleted == 4) helpMsg = "(<>..<>)  Forth Gate Cleared!  (<>..<>)"
         else
         {
             helpMsg = "CONGRATULATIONS! Spaceflight Time-trial Completed.";
@@ -60,25 +60,26 @@ class Level_1
     {
         //if (gameState === GameStateEnum.LOST) return "GAME OVER";
 
-        if ((gatesCompleted < 4) && (!this.hitSpeed400))
-        {
-            let speed = Math.sqrt(shipSpeedX * shipSpeedX + shipSpeedY * shipSpeedY) * 10.0;
-            if (speed > 400)
-            {
-                this.hitSpeed400 = true;
-                return "!!!Danger Will Robinson!!! your speed is above 400 m/s!";
-            }
-        }
+        //if ((gatesCompleted < 4) && (!this.hitSpeed400))
+        //{
+        //    let speed = Math.sqrt(shipSpeedX * shipSpeedX + shipSpeedY * shipSpeedY) * 10.0;
+        //    if (speed > 400)
+        //    {
+        //        this.hitSpeed400 = true;
+         //       return "!!!Danger Will Robinson!!! your speed is above 400 m/s!";
+        //    }
+        //}
 
         helpCounter++;
         switch(helpCounter)
         {   //@formatter:off
             case 1: return "Vector Jockey >>------> Level 1";
-            case 2: return "At any time, press H to display commands.";
-            case 3: return "Goal: Pilot ship through your choice of 5 gates ...";
-            case 4: return "... in less time-steps than any competitor.";
-            case 5: return "Be careful not to build up too much speed:";
-            case 6: return "Crossing the boundary, the Purple Pentagon, is GAME OVER.";
+            case 2: return "Goal: Pilot ship through all of 5 gates ...";
+            case 3: return "... in less time-steps than any competitor.";
+            case 4: return "                                                                ";
+            case 5: return "At any time, press C to hide/show commands.";
+            case 6: return "                                                                ";
+            /*
             case 7: return "Newton\'s 1st law of motion is often stated as:";
             case 8: return "An object at rest stays at rest";
             case 9: return "and an object in motion stays in motion ";
@@ -124,6 +125,8 @@ class Level_1
                 if (r<0.99) return "A body remains in motion in a straight line unless acted upon by a force.";
                 if (r<0.995) return "Every action produces an equal and opposite reaction.";
                 return "All forces occur in pairs: equal in magnitude and opposite in direction.";
+             */
+            default: return "";
         } //@formatter:on
     }
 }

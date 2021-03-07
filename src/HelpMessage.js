@@ -1,5 +1,6 @@
 var helpMsg = "Welcome to Vector Jockey! Your Spaceflight Training Simulator.";
-var isHelpVisible = false; //do not make visible until font has loaded.
+var isFontLoaded = false;
+var isCommandVisible;
 var msgNoise = "!<>-____[]{}—=+*^?.#";
 var helpCharList = undefined;
 var characterPixelWidth;
@@ -56,10 +57,10 @@ function initHelp()
     {
         helpCharList[i] = randomChar(msgNoise);
     }
-    isHelpVisible = true;
+    isFontLoaded = true;
 }
 
-function displayHelp()
+function displayMessage()
 {
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.font = helpFontSize + " RobotoMono";
@@ -129,4 +130,26 @@ function displayStatus(ship)
     let speed = Math.sqrt(shipSpeedX * shipSpeedX + shipSpeedY * shipSpeedY) * 10.0;
     ctx.fillText("Linear Speed: " + speed.toFixed(1) + " m/s", 10, 70);
     ctx.fillText("Forward: " + ship.heading.toFixed(1) + "°", 10, 90);
+}
+
+var commandMsg =
+    [ "W: Toggle Main Thruster",
+      "D: Toggle Clockwise Thruster",
+      "A: Toggle Counterclockwise Thruster",
+      "*spacebar*: Advance Time 10 seconds.",
+      "To zoom: Mousewheel or -/+ keys.",
+      "To scroll: Click-n-drag or Arrow keys",
+      "C: Hide/Show Commands"
+    ];
+
+
+function displayCommands()
+{
+    ctx.font = "18px RobotoMono";
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.fillStyle = "white";
+    for (let i=0; i<commandMsg.length; i++)
+    {
+        ctx.fillText(commandMsg[i], 10, 130+i*25);
+    }
 }

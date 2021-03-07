@@ -36,6 +36,7 @@ const KEY_1 = 49;
 const KEY_2 = 50;
 const KEY_W = 87;
 const KEY_A = 65;
+const KEY_C = 67;
 const KEY_D = 68;
 const KEY_H = 72;
 const KEY_SPACE = 32;
@@ -174,6 +175,7 @@ function initLevel(level)
     helpCounter = 0;
     helpSec = -1;
     tractorBeamNodes = [];
+    isCommandVisible = true;
 
     zoomScale = 0.625;
     zoomGoal = zoomScale;
@@ -288,10 +290,11 @@ function render()
     if ((ship.y+offsetY)*zoomScale < 0) renderOffScreenArrow(OffScreenArrowEnum.TOP);
     else if ((ship.y+offsetY)*zoomScale > canvasHeight)  renderOffScreenArrow(OffScreenArrowEnum.BOTTOM);
 
-    if (isHelpVisible) //Cannot display until font is loaded
+    if (isFontLoaded) //Cannot display until font is loaded
     {
-        displayHelp();
         displayStatus(ship);
+        if (isCommandVisible) displayCommands();
+        displayMessage();
     }
 
     requestAnimationFrameProtected();
@@ -601,8 +604,8 @@ function keyDown(event)
     else if (event.keyCode == KEY_DOWN_ARROW) dragWorld(0,-50);
     else if ((event.keyCode == KEY_PLUS_FIREFOX) || (event.keyCode == KEY_PLUS_CHROME)) zoom('+');
     else if ((event.keyCode == KEY_MINUS_FIREFOX) || (event.keyCode == KEY_MINUS_CHROME)) zoom('-');
-    else if (event.keyCode == KEY_H) helpCounter = 1;
-    else if (event.keyCode == KEY_ESC) helpCounter = 1000;
+    else if (event.keyCode == KEY_C) isCommandVisible = !isCommandVisible;
+    else if (event.keyCode == KEY_ESC) isCommandVisible = false;
     else if (event.keyCode == KEY_1) initLevel(level1)
     else if (event.keyCode == KEY_2) initLevel(level2)
 }
