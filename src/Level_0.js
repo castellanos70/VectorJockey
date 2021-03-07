@@ -167,8 +167,8 @@ class Level_0
         switch (helpCounter)
         {   //@formatter:off
             case 1: return "Level 0 :.:.:.:.:.: The Tutorial :.:.:.:.:.:";
-            case 2: return "At any time, if you want to skip tutorial, press 1.";
-            case 3: return "At any time, if you want to restart tutorial, press 0.";
+            case 2: return "At any time, if you want to restart tutorial, press 0.";
+            case 3: return "At any time, if you want to skip tutorial, press 1.";
             case 4: return "Level 0 consists of your ship, 3 gates and a boundary.";
             case 5:
                 if (!this.zoomOut1)
@@ -337,10 +337,11 @@ class Level_0
             default:
                 if (gatesCompleted < 3) return "Continue through the last gate!";
                 let rr = Math.random()
-                if (rr < 0.25) return "Try moving your ship around the arena.";
-                if (rr < 0.50) return "Press 0 to restart this tutorial.";
-                if (rr < 0.75) return "Press 1 to begin level 1.";
-                return "";
+                if (rr < 0.2) return "Try moving your ship around the arena.";
+                if (rr < 0.4) return "Press 0 to restart this tutorial.";
+                if (rr < 0.6) return "Press 1 to begin level 1.";
+                if (rr < 0.8) return "At any time, press H to display commands."
+                return "                                                                   ";
         } //@formatter:on
     }
 }
