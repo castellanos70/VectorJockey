@@ -283,12 +283,10 @@ function render()
     renderBoundary(ship);
     renderShipOverlay(ship);
 
-    if (ship.y < -offsetY*zoomScale) renderOffScreenArrow(OffScreenArrowEnum.TOP);
-    else if (ship.y > -offsetY*zoomScale + canvasHeight)  renderOffScreenArrow(OffScreenArrowEnum.BOTTOM);
-    if (ship.x < -offsetX*zoomScale)  renderOffScreenArrow(OffScreenArrowEnum.LEFT);
-    else if (ship.x > -offsetX*zoomScale + canvasWidth)  renderOffScreenArrow(OffScreenArrowEnum.RIGHT);
-
-
+    if ((ship.x+offsetX)*zoomScale < 0)  renderOffScreenArrow(OffScreenArrowEnum.LEFT);
+    else if ((ship.x+offsetX)*zoomScale > canvasWidth)  renderOffScreenArrow(OffScreenArrowEnum.RIGHT);
+    if ((ship.y+offsetY)*zoomScale < 0) renderOffScreenArrow(OffScreenArrowEnum.TOP);
+    else if ((ship.y+offsetY)*zoomScale > canvasHeight)  renderOffScreenArrow(OffScreenArrowEnum.BOTTOM);
 
     if (isHelpVisible) //Cannot display until font is loaded
     {
