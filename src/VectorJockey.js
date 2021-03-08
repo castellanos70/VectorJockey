@@ -6,7 +6,6 @@ var canvasWidth, canvasHeight;
 var shipImage = new Image();
 var stationImage = new Image();
 var gateImage = new Image();
-var arrowImage = new Image();
 var fileObject;
 
 var shipList, gateList, stationList;
@@ -104,7 +103,6 @@ function init()
     shipImage.src = document.getElementById("shipImage").src;
     stationImage.src = document.getElementById("stationImage").src;
     gateImage.src = document.getElementById("gateImage").src;
-    arrowImage.src = document.getElementById("arrowImage").src;
 
     canvasWidth = window.innerWidth;
     canvasHeight = window.innerHeight;
@@ -118,15 +116,16 @@ function init()
     gradientArrowBot = ctx.createLinearGradient(0,y - arrowLength, 0, y-arrowOffset[0]);
     gradientArrowBot.addColorStop("0", "#47a8cc00");
     gradientArrowBot.addColorStop("0.5", "#085a79");
-    gradientArrowBot.addColorStop("1.0", "#10c5ebff");
+    gradientArrowBot.addColorStop("1.0", colorAzure);
+    //gradientArrowBot.addColorStop("1.0", "#10c5ebff");
 
     gradientArrowTop = ctx.createLinearGradient(0,arrowOffset[0], 0, arrowLength);
-    gradientArrowTop.addColorStop("0", "#10c5ebff");
+    gradientArrowTop.addColorStop("0", colorAzure);
     gradientArrowTop.addColorStop("0.5", "#085a79");
     gradientArrowTop.addColorStop("1.0", "#47a8cc00");
 
     gradientArrowLeft = ctx.createLinearGradient(arrowOffset[0], 0, arrowLength, 0);
-    gradientArrowLeft.addColorStop("0", "#10c5ebff");
+    gradientArrowLeft.addColorStop("0", colorAzure);
     gradientArrowLeft.addColorStop("0.5", "#085a79");
     gradientArrowLeft.addColorStop("1.0", "#47a8cc00");
 
@@ -134,7 +133,7 @@ function init()
     gradientArrowRight = ctx.createLinearGradient(x - arrowLength, 0, x-arrowOffset[0], 0);
     gradientArrowRight.addColorStop("0", "#47a8cc00");
     gradientArrowRight.addColorStop("0.5", "#085a79");
-    gradientArrowRight.addColorStop("1.0", "#10c5ebff");
+    gradientArrowRight.addColorStop("1.0", colorAzure);
 
 
     thrustSystemMain = new ThrustSystem(900, 11, 10);
@@ -242,9 +241,7 @@ function render()
         shipSpeedY *= 0.95;
         shipAngularSpeed *= 0.9;
 
-        if (ship.heading < tractorBeamHeadingGoal) ship.heading++;
-        if (ship.heading > tractorBeamHeadingGoal) ship.heading--;
-        ship.heading = Math.round(ship.heading);
+        ship.heading = getAngleOneDegreeToGoal(ship.heading, tractorBeamHeadingGoal);
 
         if (Math.abs(shipSpeedX) < 1) shipSpeedX = 0;
         if (Math.abs(shipSpeedY) < 1) shipSpeedY = 0;
@@ -295,7 +292,7 @@ function render()
     if (isShipFullHistory)
     {
         let startIdx = 0;
-        if (shipList.length > 2500) startIdx = shipList.length - 1000;
+        if ((gameState === GameStateEnum.PLAYING) &&(shipList.length > 2500)) startIdx = shipList.length - 1000;
         for (let i=startIdx; i<shipList.length; i++)
         {
             renderShip(shipList[i]);
@@ -637,6 +634,7 @@ function keyDown(event)
     {
         if ((shipSpeedX === 0) && (shipSpeedY === 0) && (shipAngularSpeed === 0) && shipState === ShipStateEnum.OFF)
         {
+            isCommandVisible = true;
             helpMsg = "Ship is at Rest. Activate a Thruster.";
             helpSec = 0;
         }
@@ -805,6 +803,27 @@ function checkBoundary(ship)
             return;
         }
     }
+}
+
+function getAngleOneDegreeToGoal(angle, goal)
+{
+
+    if (Math.abs(angle - goal) <= 1.1) return goal;
+
+    if (goal >= 0)
+    {
+        if (angle > goal) return angle - 1;
+        if (goal - angle <= 180) return angle + 1;
+        angle--;
+        if (angle <= -179.5) return 180;
+        return angle;
+    }
+
+    if (angle < goal) return angle + 1;
+    if (angle - goal <= 180) return angle - 1;
+    angle++;
+    if (angle > 180) return -179;
+    return angle;
 }
 
 

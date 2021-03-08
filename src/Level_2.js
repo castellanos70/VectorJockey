@@ -2,7 +2,6 @@ class Level_2
 {
     constructor()
     {
-        this.hitSpeed400 = false;
     }
 
     init()
@@ -26,9 +25,9 @@ class Level_2
             let x = maxX * Math.cos(k * 2.0 * Math.PI / 5.0);
             let y = maxY * Math.sin(k * 2.0 * Math.PI / 5.0);
 
-            let edgeType = Station.EdgeTypeEnum.UPPER;
-            if (k === 0 || k === 1) edgeType = Station.EdgeTypeEnum.LOWER;
-            else if (k === 2) edgeType = Station.EdgeTypeEnum.VERTICAL_LEFT;
+            let edgeType = StationEdgeTypeEnum.UPPER;
+            if (k === 0 || k === 1) edgeType = StationEdgeTypeEnum.LOWER;
+            else if (k === 2) edgeType = StationEdgeTypeEnum.VERTICAL_LEFT;
             stationList.push(new Station(k, x, y, edgeType));
         }
 
@@ -47,10 +46,12 @@ class Level_2
         if (gatesCompleted == 1) helpMsg = "o()xxxx[{::::::::::::::::> You have cleared the first Gate.";
         else if (gatesCompleted == 2) helpMsg = "Two down, Three to go (clear 5 of 6 to finish)";
         else if (gatesCompleted == 3) helpMsg = "(#^.^#) That makes Three! @)}---^-----";
-        else if (gatesCompleted == 4) helpMsg = "(o|o) BAM! One more.";
+        else if (gatesCompleted == 4) helpMsg = "(o|o) Shuwatch! One more.";
         else
         {
             helpMsg = "CONGRATULATIONS! Spaceflight Time-trial Completed.";
+            helpSec = 0;
+            isShipFullHistory = true;
             gameState = GameStateEnum.WIN;
         }
     }
@@ -66,54 +67,49 @@ class Level_2
             case 4: return "                                                                ";
             case 5: return "At any time, press C to hide/show commands.";
             case 6: return "                                                                ";
-                /*
-                case 7: return "Newton\'s 1st law of motion is often stated as:";
-                case 8: return "An object at rest stays at rest";
-                case 9: return "and an object in motion stays in motion ";
-                case 10: return "with the same speed and same direction";
-                case 11: return "... unless ...";
-                case 12: return "... unless acted upon by an unbalanced force.";
-                case 13: return "Cars turn & break using friction between tires & road.";
-                case 14: return "Airplanes turn & break using ailerons & rudders pushing on air.";
-                case 15: return "In empty space, there is nothing to push on.";
-                case 16: return "                                                               ";
-                case 17: return "Your ship uses Newton\'s 3rd Law:";
-                case 18: return "Any force of one object on another ...";
-                case 19: return "... is paired with an equal and opposite force, ...";
-                case 20: return "... equal in magnitude and opposite in direction, ...";
-                case 21: return "... of the other on the first.";
-                case 22: return "A basketball player jumps, ...";
-                case 23: return "... pushing on the Earth and the Earth pushes back.";
-                case 24: return "In the air, the Earth pulls the jumper with the force of gravity."
-                case 25: return "The jumper pulls the Earth with equal & opposite gravitational force.";
-                case 26: return "Newton\'s 2nd law, F=ma, says the jumper gets more acceleration.";
-                case 27: return "¯\\(°_o)/¯";
-                case 28: return "If a B\'-ball player jumped off the side of a small spacecraft ... ";
-                case 29: return "... the spacecraft would move measurably in the opposite direction.";
-                case 30: return "A rocket fires low mass particles at super high velocity.";
-                case 31: return "The fast particles accelerate the rocket in the opposite direction.";
-                case 32: return "                                                                   ";
-                case 33: return "Have fun and may the ma be with you!";
-                default:
-                    let r = Math.random();
-                    if (r<0.88) return "";
-                    if (r<0.89) return "Pilot your ship through any 5 of the 6 gates.";
-                    if (r<0.90) return "Pass 5 gates in less time-steps than any competitor.";
-                    if (r<0.91) return "Crossing the purple pentagon boundary is GAME OVER.";
-                    if (r<0.92) return "At any time, press H to display commands."
-                    if (r<0.93) return "At any time, press 1 to restart the level.";
-                    if (r<0.94) return "With main thrust off, ship will \'coast\' along the thin azure line.";
-                    if (r<0.95) return "When the azure line crosses a gate, you\'re golden: just coast!";
-                    if (r<0.96) return "Ship forward direction had no effect on direction of motion.";
-                    if (r<0.97) return "Rotational thrusters have no effect on direction of motion.";
-                    if (r<0.975) return "¸.·´¯`·.´¯`·.¸¸.·´¯`·.¸><(((º>";
-                    if (r<0.98) return "F = ma";
-                    if (r<0.985) return "Force = mass × acceleration";
-                    if (r<0.99) return "A body remains in motion in a straight line unless acted upon by a force.";
-                    if (r<0.995) return "Every action produces an equal and opposite reaction.";
-                    return "All forces occur in pairs: equal in magnitude and opposite in direction.";
-                 */
-            default: return "";
+            case 100: return "Newton\'s 1st law of motion is often stated as:";
+            case 101: return "An object at rest stays at rest";
+            case 102: return "and an object in motion stays in motion ";
+            case 103: return "with the same speed and same direction";
+            case 104: return "... unless ...";
+            case 105: return "... unless acted upon by an unbalanced force.";
+            case 106: return "Cars turn & break using friction between tires & road.";
+            case 107: return "Airplanes turn & break using ailerons & rudders pushing on air.";
+            case 108: return "In empty space, there is nothing to push on.";
+            case 109: return "                                                               ";
+            case 200: return "Your ship uses Newton\'s 3rd Law:";
+            case 201: return "Any force of one object on another ...";
+            case 202: return "... is paired with an equal and opposite force, ...";
+            case 203: return "... equal in magnitude and opposite in direction, ...";
+            case 204: return "... of the other on the first.";
+            case 205: return "A basketball player jumps, ...";
+            case 206: return "... pushing on the Earth and the Earth pushes back.";
+            case 207: return "In the air, the Earth pulls the jumper with the force of gravity."
+            case 208: return "The jumper pulls the Earth with equal & opposite gravitational force.";
+            case 209: return "Newton\'s 2nd law, F=ma, says the jumper gets more acceleration.";
+            case 210: return "¯\\(°_o)/¯";
+            case 211: return "If a B\'-ball player jumped off the side of a small spacecraft ... ";
+            case 212: return "... the spacecraft would move measurably in the opposite direction.";
+            case 213: return "A rocket fires low mass particles at super high velocity.";
+            case 214: return "The fast particles accelerate the rocket in the opposite direction.";
+            case 215: return "                                                                   ";
+
+            default:
+                let r = Math.random();
+                if (r<0.87) return "";
+                if (r<0.88) return "Pilot your ship through any 5 of the 6 gates.";
+                if (r<0.89) return "Pass 5 gates in less time-steps than any competitor.";
+                if (r<0.90) return "Press H to toggle Ship Path History vs Animation."
+                if (r<0.91) return "Press 2 to restart level 2.";
+                if (r<0.92) return "Press 1 to restart level 1.";
+                if (r<0.93) { helpMsg=99; return "";}
+                if (r<0.94) return "¸.·´¯`·.´¯`·.¸¸.·´¯`·.¸><(((º>";
+                if (r<0.95) return "F = ma";
+                if (r<0.96) return "Force = mass × acceleration";
+                if (r<0.97) return "A body remains in motion in a straight line unless acted upon by a force.";
+                if (r<0.98) return "Every action produces an equal and opposite reaction.";
+                if (r<0.99) return "All forces occur in pairs: equal in magnitude and opposite in direction.";
+                return "May the ma be with you!";
         } //@formatter:on
     }
 }
