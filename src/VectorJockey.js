@@ -254,6 +254,9 @@ function render()
             if (tractorBeamNodes[0].isInside(ship.x, ship.y))
             {
                 gameState = GameStateEnum.PLAYING;
+                helpMsg = "Tractor Beam Off. You may resume control of ship.";
+                helpSec = 0;
+                isCommandVisible = true;
             }
         }
     }
@@ -796,6 +799,8 @@ function checkBoundary(ship)
         if (!station.isInside(ship.x, ship.y))
         {
             gameState = GameStateEnum.TRACTOR_BEAM;
+            helpMsg = "Tractor Beam Engaged. Thrusters temporarily disabled. Enjoy the ride.";
+            helpSec = 0;
             tractorBeamNodes = [station, station.neighbor];
             tractorBeamHeadingGoal = Math.round(Math.atan2(-ship.y, -ship.x) / DEGREES_TO_RAD);
             if (tractorBeamHeadingGoal > 180) tractorBeamHeadingGoal = tractorBeamHeadingGoal - 360;
