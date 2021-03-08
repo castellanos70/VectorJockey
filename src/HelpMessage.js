@@ -110,8 +110,8 @@ function displayMessage()
     let x = textLeft;
     for (let i=0; i<helpMsg.length; i++)
     {
-        if (helpCharList[i] == helpMsg[i]) ctx.fillStyle = "#FAFAFA";
-        else ctx.fillStyle = "#757575";
+        if (helpCharList[i] == helpMsg[i]) ctx.fillStyle = colorNearWhite;
+        else ctx.fillStyle = colorGray;
         ctx.fillText(helpCharList[i], x, textBot);
         x += characterPixelWidth;
     }
@@ -132,24 +132,75 @@ function displayStatus(ship)
     ctx.fillText("Forward: " + ship.heading.toFixed(1) + "°", 10, 90);
 }
 
-var commandMsg =
-    [ "W: Toggle Main Thruster",
-      "D: Toggle Clockwise Thruster",
-      "A: Toggle Counterclockwise Thruster",
-      "*spacebar*: Advance Time 10 seconds.",
-      "To zoom: Mousewheel or -/+ keys.",
-      "To scroll: Click-n-drag or Arrow keys",
-      "C: Hide/Show Commands"
-    ];
 
 
-function displayCommands()
+
+
+function displayCommands(ship)
 {
     ctx.font = "18px RobotoMono";
     ctx.setTransform(1, 0, 0, 1, 0, 0);
-    ctx.fillStyle = "white";
-    for (let i=0; i<commandMsg.length; i++)
+    // var colorAzure = "#00A0F0";
+    // var colorNearWhite = "#FAFAFA";
+    // var colorGray = "#757575";
+
+    let top = 130;
+    let left = 10;
+    let height = 25;
+    let color = colorNearWhite;
+    let atRest = false;
+    let highlightThrustCommands = false;
+    if ((shipSpeedX === 0) && (shipSpeedY === 0) && (shipAngularSpeed === 0)) atRest = true;
+    if (gameState != GameStateEnum.PLAYING) color = colorGray;
+    else if ((shipState === ShipStateEnum.OFF) && atRest && !isShipOffScreen) highlightThrustCommands = true;
+    ctx.fillStyle = color;
+
+    if (highlightThrustCommands)
     {
-        ctx.fillText(commandMsg[i], 10, 130+i*25);
+        ctx.fillStyle = colorAzure;
+        ctx.globalAlpha = Math.abs(Math.sin(clockSec));
     }
+    ctx.fillText("W: Toggle Main Thruster", left, top);
+
+    if (shipAngularSpeed === 15) ctx.fillStyle = colorGray;
+    else if (highlightThrustCommands)
+    {
+        ctx.fillStyle = colorAzure;
+        ctx.globalAlpha = Math.abs(Math.sin(clockSec+Math.PI/4));
+    }
+    ctx.fillText("D: Toggle Clockwise Thruster", left, top+1*height);
+
+    ctx.fillStyle = color;
+    if (shipAngularSpeed === -15) ctx.fillStyle = colorGray;
+    else if (highlightThrustCommands)
+    {
+        ctx.fillStyle = colorAzure;
+        ctx.globalAlpha = Math.abs(Math.sin(clockSec+Math.PI/2));
+    }
+    ctx.fillText("A: Toggle Counterclockwise Thruster", left, top+2*height);
+
+    if (highlightThrustCommands) ctx.globalAlpha = 1;
+
+    color = colorNearWhite;
+    if ((gameState != GameStateEnum.PLAYING) || (atRest && (shipState === ShipStateEnum.OFF))) color = colorGray;
+    else if (!isShipOffScreen && gameTime < 25)
+    {
+        color = colorAzure;
+        ctx.globalAlpha = Math.abs(Math.sin(clockSec));
+    }
+    ctx.fillStyle = color;
+    ctx.fillText("*spacebar*: Advance Time 10 seconds.", left, top+3*height);
+    ctx.globalAlpha = 1;
+
+    ctx.fillStyle = colorNearWhite;
+    if (isShipOffScreen)
+    {
+        ctx.fillStyle = colorAzure;
+        ctx.globalAlpha = Math.abs(Math.sin(clockSec));
+    }
+    ctx.fillText("To zoom: Mousewheel or -/+ keys.", left, top+4*height);
+    ctx.fillText("To scroll: Click-n-drag or Arrow keys", left, top+5*height);
+    ctx.globalAlpha = 1;
+    ctx.fillStyle = colorNearWhite;
+    ctx.fillText("C: Hide/Show Commands", left, top+6*height);
 }

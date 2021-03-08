@@ -63,11 +63,20 @@ var movePending;
 var clockSec;
 var tractorBeamNodes = [];
 var tractorBeamHeadingGoal;
+var isShipOffScreen;
+var isShipFullHistory;
+var shipHistoryAnimationIdx;
+var shipAnimationSec = 0;
+var animationShip;
 
 var arrowLength = 100
 var arrowWidth = [7,3,5];
 var arrowOffset = [20,40,75];
 var gradientArrowBot, gradientArrowTop, gradientArrowLeft, gradientArrowRight;
+
+var colorAzure = "#00A0F0";
+var colorNearWhite = "#FAFAFA";
+var colorGray = "#757575";
 
 window.onload = function () {init();};
 
@@ -102,6 +111,8 @@ function init()
     ctx.canvas.width = canvasWidth;
     ctx.canvas.height = canvasHeight;
     canvasImage = ctx.getImageData(0, 0, canvasWidth, canvasHeight);
+
+    animationShip = new Ship(0,0,0,0);
 
     let y = canvasHeight;
     gradientArrowBot = ctx.createLinearGradient(0,y - arrowLength, 0, y-arrowOffset[0]);
@@ -176,6 +187,8 @@ function initLevel(level)
     helpSec = -1;
     tractorBeamNodes = [];
     isCommandVisible = true;
+    isShipFullHistory = true;
+    shipHistoryAnimationIdx = 0;
 
     zoomScale = 0.625;
     zoomGoal = zoomScale;
@@ -184,6 +197,7 @@ function initLevel(level)
 
     offsetX = canvasWidth/2;
     offsetY = canvasHeight/2;
+    isShipOffScreen = false;
 
     //Adjust offset for the stating sim at zoom != 1
     let shiftFactor = 1.0 / zoomScale - 1.0;
@@ -251,6 +265,10 @@ function render()
     {
         movePending = false;
         gameTime++;
+        if (gameTime === 1000) isShipFullHistory = false;
+        if (Math.abs(shipSpeedX) < 0.0001) shipSpeedX = 0;
+        if (Math.abs(shipSpeedY) < 0.0001) shipSpeedY = 0;
+        if (Math.abs(shipAngularSpeed) < 4) shipAngularSpeed = 0;
         let ship0 = ship;
         let shipX = ship0.x + shipSpeedX;
         let shipY = ship0.y + shipSpeedY;
@@ -273,11 +291,48 @@ function render()
 
     ctx.putImageData(canvasImage, 0, 0);
 
-    for (const ship of shipList)
+    ship.state = shipState;
+    if (isShipFullHistory)
     {
+        let startIdx = 0;
+        if (shipList.length > 2500) startIdx = shipList.length - 1000;
+        for (let i=startIdx; i<shipList.length; i++)
+        {
+            renderShip(shipList[i]);
+        }
+    }
+    else
+    {
+        if(shipList.length > 25)
+        {
+            let deltaSec = clockSec - shipAnimationSec;
+
+            if (deltaSec > 0.1)
+            {
+                shipHistoryAnimationIdx++;
+                if (shipHistoryAnimationIdx >= shipList.length - 1) shipHistoryAnimationIdx = 0;
+                shipAnimationSec = clockSec;
+                deltaSec = 0;
+            }
+
+            let tmpShip1 = shipList[shipHistoryAnimationIdx];
+            let tmpShip2 = shipList[shipHistoryAnimationIdx + 1];
+
+            animationShip.state = tmpShip1.state;
+            animationShip.x = (tmpShip1.x * (0.1 - deltaSec) + tmpShip2.x * deltaSec) / 0.1;
+            animationShip.y = (tmpShip1.y * (0.1 - deltaSec) + tmpShip2.y * deltaSec) / 0.1;
+            if (Math.abs(tmpShip1.heading - tmpShip2.heading) > 90) animationShip.heading = tmpShip1.heading;
+            else
+            {
+                animationShip.heading = (tmpShip1.heading * (0.1 - deltaSec) + tmpShip2.heading * deltaSec) / 0.1;
+            }
+            renderShip(animationShip);
+            renderThrust(animationShip);
+        }
         renderShip(ship);
     }
     renderThrust(ship);
+
     for (const gate of gateList)
     {
         renderGate(gate);
@@ -285,6 +340,7 @@ function render()
     renderBoundary(ship);
     renderShipOverlay(ship);
 
+    isShipOffScreen = false;
     if ((ship.x+offsetX)*zoomScale < 0)  renderOffScreenArrow(OffScreenArrowEnum.LEFT);
     else if ((ship.x+offsetX)*zoomScale > canvasWidth)  renderOffScreenArrow(OffScreenArrowEnum.RIGHT);
     if ((ship.y+offsetY)*zoomScale < 0) renderOffScreenArrow(OffScreenArrowEnum.TOP);
@@ -293,7 +349,7 @@ function render()
     if (isFontLoaded) //Cannot display until font is loaded
     {
         displayStatus(ship);
-        if (isCommandVisible) displayCommands();
+        if (isCommandVisible) displayCommands(ship);
         displayMessage();
     }
 
@@ -307,7 +363,6 @@ function renderShip(ship)
     ctx.translate(offsetX+ship.x, offsetY+ship.y);
     ctx.rotate(ship.heading*DEGREES_TO_RAD)
     ctx.drawImage(shipImage,-shipImage.width/2, -shipImage.height/2);
-    ctx.fillStyle = "#A00000";
 }
 
 function renderShipOverlay(ship)
@@ -319,7 +374,7 @@ function renderShipOverlay(ship)
     let y0 = (offsetY + ship.y) * zoomScale;
     ctx.moveTo(x0, y0);
     ctx.lineTo(x0 + (maxX - minX) * shipSpeedX * zoomScale, y0 + (maxY - minY) * shipSpeedY * zoomScale);
-    ctx.strokeStyle = "#00A0F0";
+    ctx.strokeStyle = colorAzure;
     ctx.stroke();
 
     let counterclockwise = false;
@@ -344,17 +399,17 @@ function renderShipOverlay(ship)
 
 function renderThrust(ship)
 {
-    if (shipState & ShipStateEnum.BACK)
+    if (ship.state & ShipStateEnum.BACK)
     {
         thrustSystemMain.render(ship, -(shipImage.width-4)/2, 0);
     }
 
-    if (shipState & ShipStateEnum.CLOCKWISE)
+    if (ship.state & ShipStateEnum.CLOCKWISE)
     {
         thrustSystemCWB.render(ship, -28, 30, -90); //ship, dx, dy, rotation
         thrustSystemCWF.render(ship, 39, -23, 90);
     }
-    if (shipState & ShipStateEnum.COUNTERCLOCKWISE)
+    if (ship.state & ShipStateEnum.COUNTERCLOCKWISE)
     {
         thrustSystemCWB.render(ship, -27, -30, 90);
         thrustSystemCWF.render(ship, 39, 23, -90);
@@ -456,6 +511,7 @@ function renderBoundary(ship)
 
 function renderOffScreenArrow(direction)
 {
+    isShipOffScreen = true;
     ctx.setTransform(1, 0, 0, 1, 0, 0);
 
     if (direction === OffScreenArrowEnum.BOTTOM)
@@ -579,23 +635,31 @@ function keyDown(event)
     }
     else if ((event.keyCode == KEY_SPACE) && (gameState == GameStateEnum.PLAYING))
     {
-        if (shipState & ShipStateEnum.BACK)
+        if ((shipSpeedX === 0) && (shipSpeedY === 0) && (shipAngularSpeed === 0) && shipState === ShipStateEnum.OFF)
         {
-            shipSpeedX += Math.cos(ship0.heading * DEGREES_TO_RAD)
-            shipSpeedY += Math.sin(ship0.heading * DEGREES_TO_RAD)
+            helpMsg = "Ship is at Rest. Activate a Thruster.";
+            helpSec = 0;
         }
-        if (shipState & ShipStateEnum.COUNTERCLOCKWISE)
+        else
         {
-            shipAngularSpeed -= 5;
-            if (shipAngularSpeed <= -15) shipAngularSpeed = -15;
+            if (shipState & ShipStateEnum.BACK)
+            {
+                shipSpeedX += Math.cos(ship0.heading * DEGREES_TO_RAD)
+                shipSpeedY += Math.sin(ship0.heading * DEGREES_TO_RAD)
+            }
+            if (shipState & ShipStateEnum.COUNTERCLOCKWISE)
+            {
+                shipAngularSpeed -= 5;
+                if (shipAngularSpeed <= -15) shipAngularSpeed = -15;
 
+            }
+            if (shipState & ShipStateEnum.CLOCKWISE)
+            {
+                shipAngularSpeed += 5;
+                if (shipAngularSpeed >= 15) shipAngularSpeed = 15;
+            }
+            movePending = true;
         }
-        if (shipState & ShipStateEnum.CLOCKWISE)
-        {
-            shipAngularSpeed += 5;
-            if (shipAngularSpeed >= 15) shipAngularSpeed = 15;
-        }
-        movePending = true;
     }
 
     else if (event.keyCode == KEY_LEFT_ARROW) dragWorld(50,0);
@@ -608,6 +672,7 @@ function keyDown(event)
     else if (event.keyCode == KEY_ESC) isCommandVisible = false;
     else if (event.keyCode == KEY_1) initLevel(level1)
     else if (event.keyCode == KEY_2) initLevel(level2)
+    else if (event.keyCode == KEY_H) isShipFullHistory = !isShipFullHistory;
 }
 
 
@@ -736,6 +801,7 @@ function checkBoundary(ship)
             tractorBeamNodes = [station, station.neighbor];
             tractorBeamHeadingGoal = Math.round(Math.atan2(-ship.y, -ship.x) / DEGREES_TO_RAD);
             if (tractorBeamHeadingGoal > 180) tractorBeamHeadingGoal = tractorBeamHeadingGoal - 360;
+            if (tractorBeamHeadingGoal === -180) tractorBeamHeadingGoal = 180;
             return;
         }
     }

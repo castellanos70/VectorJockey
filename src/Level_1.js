@@ -77,8 +77,19 @@ class Level_1
             case 2: return "Goal: Pilot ship through all of 5 gates ...";
             case 3: return "... in less time-steps than any competitor.";
             case 4: return "                                                                ";
-            case 5: return "At any time, press C to hide/show commands.";
-            case 6: return "                                                                ";
+            default:
+                let r = Math.random();
+                if (r<0.90) return "";
+                if (r<0.91) return "Goal: Pilot ship through all of 5 gates";
+                if (r<0.92) return "Pass the 5 gates in less time-steps than any competitor.";
+                if (r<0.93) return "At any time, press C to hide/show commands.";
+                if (r<0.94) return "Press H to toggle Ship Path History vs Animation."
+                if (r<0.95) return "At any time, press 1 to restart the level.";
+                if (r<0.96) return "With main thrust off, ship will \'coast\' along the thin azure line.";
+                if (r<0.97) return "When the azure line crosses a gate, you\'re golden: just coast!";
+                if (r<0.98) return "Ship forward direction had no effect on direction of motion.";
+                if (r<0.99) return "Rotational thrusters do not change the ship\'s direction of motion.";
+                return "";
             /*
             case 7: return "Newton\'s 1st law of motion is often stated as:";
             case 8: return "An object at rest stays at rest";
@@ -126,7 +137,7 @@ class Level_1
                 if (r<0.995) return "Every action produces an equal and opposite reaction.";
                 return "All forces occur in pairs: equal in magnitude and opposite in direction.";
              */
-            default: return "";
+            //default: return "";
         } //@formatter:on
     }
 }
