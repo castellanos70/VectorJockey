@@ -60,14 +60,16 @@ class Level_1
     {
         if (gameTime === 1 && shipSpeedX === 1)
             return "You\'re Moving!!!        Notice Time = 1.        Notice Linear Speed = 10 meters/second.";
+        if (gameTime === 2 && shipSpeedX === 2)
+            return "You\'re advanced time twice.     Notice Time = 2.        Notice Linear Speed = 20 meters/second.";
 
         if (gameState === GameStateEnum.WIN)
         {
             if (helpCounter === 1)
             {
                 helpCounter++;
-                if (isShipFullHistory) return "Press H show ghost ship of actions past.";
-                return "Press H show history tail";
+                if (isShipFullHistory) return "Press H to show Ghost Ship of Actions Past.";
+                return "Press H to show history tail";
             }
             let r = Math.random();
             if (r < 0.8) return "Press 2 to start Level 2";
@@ -81,20 +83,19 @@ class Level_1
             case 1: return "Vector Jockey >>=====> Level 1 <=====<< (par 275)";
             case 2: case 3: case 4:
                 return "Goal: Pilot ship through all of 5 gates in less time-steps than any competitor.";
-            case 5: case 7: case 7:
+            case 5: case 6: case 7:
                 if (shipSpeedX !== 0) return "Long thin Azure line shows the path your ship will take if time is advanced with thruster off.";
             case 8: return "                                                                ";
             default:
                 let r = Math.random();
-                if (r<0.90) return "";
-                if (r<0.91)
+                if (r<0.91) return "";
+                if (r<0.92)
                 {
                     if (isShipFullHistory) return "Press H toggle Ghost Ship of Actions Past.";
                     return "Press H toggle Trail of History.";
                 }
-                if (r<0.92) return "Goal: Pass the 5 gates in less time-steps than any competitor.";
-                if (r<0.93) return "At any time, press C to hide/show commands.";
-                if (r<0.94) return "Press H to toggle Ship Path History vs Animation."
+                if (r<0.93) return "Goal: Pass the 5 gates in less time-steps than any competitor.";
+                if (r<0.94) return "At any time, press C to hide/show commands.";
                 if (r<0.95) return "At any time, press 1 to restart the level.";
                 if (r<0.96) return "With main thrust off, ship will \'coast\' along the thin azure line.";
                 if (r<0.97) return "When the azure line crosses a gate, you\'re golden: just coast!";

@@ -81,7 +81,8 @@ var colorAzure = "#00A0F0";
 var colorNearWhite = "#FAFAFA";
 var colorGray = "#757575";
 
-var isDisplayTitle = false;
+var isFontLoaded = false;
+var isDisplayTitle = true;
 
 window.onload = function () {init();};
 
@@ -156,7 +157,7 @@ function init()
         document.fonts.add(loaded_face);
         initHelp();
         isFont0Loaded = true;
-        if (isFont1Loaded) isDisplayTitle = true;
+        if (isFont1Loaded) isFontLoaded = true;
     }).catch(function(error) {});
 
     gameFont1.load().then(function(loaded_face)
@@ -164,7 +165,7 @@ function init()
         document.fonts.add(loaded_face);
         initHelp();
         isFont1Loaded = true;
-        if (isFont0Loaded) isDisplayTitle = true;
+        if (isFont0Loaded) isFontLoaded = true;
     }).catch(function(error) {});
 
     fileObject = new XMLHttpRequest();

@@ -60,7 +60,6 @@ function initHelp()
     {
         infoCharList[i] = randomChar(msgNoise);
     }
-    isFontLoaded = true;
 }
 
 
@@ -232,7 +231,7 @@ function displayCommands(ship)
 }
 
 var title1 = "V E C T O R  J O C K E Y";
-var title2 = "Spaceflight Training Simulator.";
+var title2 = "Spaceflight Training Simulator";
 function displayTitle()
 {
     ctx.fillStyle = colorNearWhite;

@@ -97,8 +97,8 @@ class Level_2
                 if (r<0.89) return "Pass 5 gates in less time-steps than any competitor.";
                 if (r<0.90)
                 {
-                    if (isShipFullHistory) return "Press H toggle Ghost Ship of Actions Past.";
-                    return "Press H toggle Trail of History.";
+                    if (isShipFullHistory) return "Press H to toggle Ghost Ship of Actions Past.";
+                    return "Press H to toggle Trail of History.";
                 }
                 if (r<0.91) return "Press 2 to restart level 2.";
                 if (r<0.92) return "Press 1 to restart level 1.";
