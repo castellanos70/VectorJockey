@@ -41,16 +41,16 @@ class Level_2
 
     clearedGate()
     {
-        helpSec = 0;
+        infoSec = 0;
         if (helpCounter < 8) helpCounter = 8;
-        if (gatesCompleted == 1) helpMsg = "o()xxxx[{::::::::::::::::> You have cleared the first Gate.";
-        else if (gatesCompleted == 2) helpMsg = "Two down, Three to go (clear 5 of 6 to finish)";
-        else if (gatesCompleted == 3) helpMsg = "(#^.^#) That makes Three! @)}---^-----";
-        else if (gatesCompleted == 4) helpMsg = "(o|o) Shuwatch! One more.";
+        if (gatesCompleted == 1) infoMsg = "o()xxxx[{::::::::::::::::> You have cleared the first Gate.";
+        else if (gatesCompleted == 2) infoMsg = "Two down, Three to go (clear 5 of 6 to finish)";
+        else if (gatesCompleted == 3) infoMsg = "(#^.^#) That makes Three! @)}---^-----";
+        else if (gatesCompleted == 4) infoMsg = "One gate to go.";
         else
         {
-            helpMsg = "CONGRATULATIONS! Spaceflight Time-trial Completed.";
-            helpSec = 0;
+            infoMsg = "(o|o) Shuwatch! Level 2 Spaceflight Time-trial Completed.";
+            infoSec = 0;
             isShipFullHistory = true;
             gameState = GameStateEnum.WIN;
         }
@@ -61,27 +61,23 @@ class Level_2
         helpCounter++;
         switch(helpCounter)
         {   //@formatter:off
-            case 1: return "Vector Jockey :.:.:.:.:.:  Level 2  :.:.:.:.:.:";
-            case 2: return "Goal: Pilot your ship through any 5 of the 6 gates ...";
-            case 3: return "... in less time-steps than any competitor.";
+            case 1: return "Vector Jockey ::....::....::....::....::  Level 2  ::....::....::....::....:: (par 450)";
+            case 2: case 3:
+                return "Goal: Pilot your ship through any 5 of the 6 gates in less time-steps than any competitor.";
             case 4: return "                                                                ";
             case 5: return "At any time, press C to hide/show commands.";
             case 6: return "                                                                ";
-            case 100: return "Newton\'s 1st law of motion is often stated as:";
-            case 101: return "An object at rest stays at rest";
-            case 102: return "and an object in motion stays in motion ";
-            case 103: return "with the same speed and same direction";
-            case 104: return "... unless ...";
+            case 102: return "Newton\'s 1st law of motion is often stated as:";
+            case 103: return "An object at rest stays at rest";
+            case 104: return "and an object in motion stays in motion with the same speed and same direction ...";
             case 105: return "... unless acted upon by an unbalanced force.";
             case 106: return "Cars turn & break using friction between tires & road.";
             case 107: return "Airplanes turn & break using ailerons & rudders pushing on air.";
             case 108: return "In empty space, there is nothing to push on.";
             case 109: return "                                                               ";
             case 200: return "Your ship uses Newton\'s 3rd Law:";
-            case 201: return "Any force of one object on another ...";
-            case 202: return "... is paired with an equal and opposite force, ...";
-            case 203: return "... equal in magnitude and opposite in direction, ...";
-            case 204: return "... of the other on the first.";
+            case 201: return "Any force of one object on another is paired with an equal and opposite force, ...";
+            case 203: return "... equal in magnitude and opposite in direction, of the other on the first.";
             case 205: return "A basketball player jumps, ...";
             case 206: return "... pushing on the Earth and the Earth pushes back.";
             case 207: return "In the air, the Earth pulls the jumper with the force of gravity."
@@ -99,10 +95,14 @@ class Level_2
                 if (r<0.87) return "";
                 if (r<0.88) return "Pilot your ship through any 5 of the 6 gates.";
                 if (r<0.89) return "Pass 5 gates in less time-steps than any competitor.";
-                if (r<0.90) return "Press H to toggle Ship Path History vs Animation."
+                if (r<0.90)
+                {
+                    if (isShipFullHistory) return "Press H toggle Ghost Ship of Actions Past.";
+                    return "Press H toggle Trail of History.";
+                }
                 if (r<0.91) return "Press 2 to restart level 2.";
                 if (r<0.92) return "Press 1 to restart level 1.";
-                if (r<0.93) { helpMsg=99; return "";}
+                if (r<0.93) { infoMsg=99; return "";}
                 if (r<0.94) return "¸.·´¯`·.´¯`·.¸¸.·´¯`·.¸><(((º>";
                 if (r<0.95) return "F = ma";
                 if (r<0.96) return "Force = mass × acceleration";

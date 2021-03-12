@@ -2,7 +2,6 @@ class Level_1
 {
     constructor()
     {
-        this.hitSpeed400 = false;
     }
 
     init()
@@ -41,52 +40,59 @@ class Level_1
 
     clearedGate()
     {
-        helpSec = 0;
+        infoSec = 0;
         if (helpCounter < 8) helpCounter = 8;
-        if (gatesCompleted == 1) helpMsg = "First Gate Cleared! \\,,/(^_^)\\,,/";
-        else if (gatesCompleted == 2) helpMsg = "Second Gate Cleared!  --~~~=:>[XXXXXXXXX]>";
-        else if (gatesCompleted == 3) helpMsg = "Third Gate Cleared! ¸.·´¯`·.´¯`·.¸¸.·´¯`·.¸><(((º>";
-        else if (gatesCompleted == 4) helpMsg = "(<>..<>)  Forth Gate Cleared!  (<>..<>)"
+        if (gatesCompleted == 1) infoMsg = "First Gate Cleared! \\,,/(^_^)\\,,/";
+        else if (gatesCompleted == 2) infoMsg = "Second Gate Cleared!  --~~~=:>[XXXXXXXXX]>";
+        else if (gatesCompleted == 3) infoMsg = "Third Gate Cleared! ¸.·´¯`·.´¯`·.¸¸.·´¯`·.¸><(((º>";
+        else if (gatesCompleted == 4) infoMsg = "(<>..<>)  Forth Gate Cleared!  (<>..<>)"
         else
         {
-            helpMsg = "CONGRATULATIONS! Spaceflight Time-trial Completed.";
-            helpSec = 0;
+            infoMsg = "CONGRATULATIONS! Spaceflight Time-trial Completed.";
+            infoSec = 0;
             isShipFullHistory = true;
             gameState = GameStateEnum.WIN;
+            helpCounter = 1;
         }
     }
 
     getNextHelpMsg()
     {
+        if (gameTime === 1 && shipSpeedX === 1)
+            return "You\'re Moving!!!        Notice Time = 1.        Notice Linear Speed = 10 meters/second.";
+
         if (gameState === GameStateEnum.WIN)
         {
+            if (helpCounter === 1)
+            {
+                helpCounter++;
+                if (isShipFullHistory) return "Press H show ghost ship of actions past.";
+                return "Press H show history tail";
+            }
             let r = Math.random();
             if (r < 0.8) return "Press 2 to start Level 2";
             return "Press 1 to restart Level 1.";
         }
 
-        if ((gatesCompleted < 4) && (!this.hitSpeed400))
-        {
-            let speed = Math.sqrt(shipSpeedX * shipSpeedX + shipSpeedY * shipSpeedY) * 10.0;
-            if (speed > 400)
-            {
-                this.hitSpeed400 = true;
-                return "!!!Danger Will Robinson!!! your speed is above 400 m/s!";
-            }
-        }
 
         helpCounter++;
         switch(helpCounter)
         {   //@formatter:off
-            case 1: return "Vector Jockey >>------> Level 1";
-            case 2: return "Goal: Pilot ship through all of 5 gates ...";
-            case 3: return "... in less time-steps than any competitor.";
-            case 4: return "                                                                ";
+            case 1: return "Vector Jockey >>=====> Level 1 <=====<< (par 275)";
+            case 2: case 3: case 4:
+                return "Goal: Pilot ship through all of 5 gates in less time-steps than any competitor.";
+            case 5: case 7: case 7:
+                if (shipSpeedX !== 0) return "Long thin Azure line shows the path your ship will take if time is advanced with thruster off.";
+            case 8: return "                                                                ";
             default:
                 let r = Math.random();
                 if (r<0.90) return "";
-                if (r<0.91) return "Goal: Pilot ship through all of 5 gates";
-                if (r<0.92) return "Pass the 5 gates in less time-steps than any competitor.";
+                if (r<0.91)
+                {
+                    if (isShipFullHistory) return "Press H toggle Ghost Ship of Actions Past.";
+                    return "Press H toggle Trail of History.";
+                }
+                if (r<0.92) return "Goal: Pass the 5 gates in less time-steps than any competitor.";
                 if (r<0.93) return "At any time, press C to hide/show commands.";
                 if (r<0.94) return "Press H to toggle Ship Path History vs Animation."
                 if (r<0.95) return "At any time, press 1 to restart the level.";

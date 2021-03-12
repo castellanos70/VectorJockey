@@ -1,14 +1,14 @@
-var helpMsg = "Welcome to Vector Jockey! Your Spaceflight Training Simulator.";
-var isFontLoaded = false;
-var isCommandVisible;
 var msgNoise = "!<>-____[]{}—=+*^?.#";
-var helpCharList = undefined;
-var characterPixelWidth;
-var textBot;
-var textLeft = 50;
-var helpSec = 0;
+var infoMsg, infoCharList = undefined;
+var infoSec = 0;
 var helpCounter = 0;
-var helpFontSize = "30px"
+var infoFontSize, infoLeft, infoBot;
+var statusLineList =
+[ new Array(40), new Array(40), new Array(40),new Array(40)
+]
+
+var isCommandVisible;
+
 
 function randomInt(n)
 {
@@ -20,7 +20,7 @@ function randomChar(str)
     return str[randomInt(str.length)];
 }
 
-function getMatchCountFromStart(myStr, myList)
+function getLeftMatchCount(myStr, myList)
 {
     let matchCount = 0;
     for (let i=0; i<myStr.length; i++)
@@ -36,113 +36,139 @@ function initHelp()
 {
     if (canvasWidth < 1000)
     {
-        helpFontSize = "16px";
-        textLeft = 5;
-        textBot = canvasHeight - 10;
+        infoFontSize = "16px";
+        infoLeft = 5;
+        infoBot = canvasHeight - 10;
     }
     else if (canvasWidth < 1500)
     {
-        helpFontSize = "24px";
-        textLeft = 5;
-        textBot = canvasHeight - 10;
+        infoFontSize = "24px";
+        infoLeft = 5;
+        infoBot = canvasHeight - 10;
     }
-    else textBot = canvasHeight - 50;
-    ctx.font = helpFontSize + " RobotoMono";
-    characterPixelWidth = ctx.measureText('A').width; //Assuming mono font
+    else
+    {
+        infoFontSize = "30px";
+        infoLeft = 50;
+        infoBot = canvasHeight - 50;
+    }
 
     //Fill with random characters longer than any help text message.
     //Once filled, this same list is changed form line to line.
-    helpCharList = new Array(100)
-    for (let i = 0; i < helpCharList.length; i++)
+    infoCharList = new Array(100)
+    for (let i = 0; i < infoCharList.length; i++)
     {
-        helpCharList[i] = randomChar(msgNoise);
+        infoCharList[i] = randomChar(msgNoise);
     }
     isFontLoaded = true;
 }
 
+
 function displayMessage()
 {
     ctx.setTransform(1, 0, 0, 1, 0, 0);
-    ctx.font = helpFontSize + " RobotoMono";
-
-    let matchCount = getMatchCountFromStart(helpMsg, helpCharList);
-    if (matchCount >= helpMsg.length)
+    //ctx.font = infoFontSize + " RobotoMono";
+    ctx.font = infoFontSize + " SourceSansPro-Light";
+    let done = scrambleText(infoMsg, infoCharList, infoFontSize, infoLeft, infoBot)
+    if (done)
     {
-        ctx.fillStyle = "#FAFAFA";
-        ctx.fillText(helpMsg, textLeft, textBot);
-        if (helpSec == 0) helpSec = clockSec;
-        else
+        if (infoSec === 0) infoSec = clockSec;
+        else if (clockSec - infoSec > 5)
         {
-            if (clockSec - helpSec > 4)
-            {
-                helpMsg = currentLevel.getNextHelpMsg();
-                helpSec = 0;
-            }
+            infoMsg = currentLevel.getNextHelpMsg();
+            infoSec = 0;
         }
     }
+}
 
-    if (Math.random() < 0.2) //Set a character to target
+
+function scrambleText(msg, goalCharList, fontSize, msgLeft, msgBot)
+{
+    if (msg.length < 1) return;
+    let matchCount = getLeftMatchCount(msg, goalCharList);
+    if (matchCount >= msg.length)
     {
-        let i = randomInt(helpMsg.length - matchCount) + matchCount;
-        if (helpCharList[i] !== helpMsg[i]) helpCharList[i] = helpMsg[i];
+        ctx.fillStyle = colorNearWhite;
+        ctx.fillText(msg, msgLeft, msgBot);
+        return true;
+    }
+    if (matchCount > 0)
+    {
+        ctx.fillStyle = colorNearWhite;
+        let msg0 = msg.substring(0, matchCount);
+        ctx.fillText(msg0, msgLeft, msgBot);
+        msgLeft += ctx.measureText(msg0).width;
+    }
+
+    if (Math.random() < 0.1) //Set a character to target
+    {
+        let i = randomInt(msg.length - matchCount) + matchCount;
+        if (goalCharList[i] !== msg[i]) goalCharList[i] = msg[i];
         else
         {
             //If random index is already a match, match first mismatched character
-            for (i=matchCount; i<helpMsg.length; i++)
+            for (i=matchCount; i<msg.length; i++)
             {
-                if (helpCharList[i] !== helpMsg[i])
+                if (goalCharList[i] !== msg[i])
                 {
-                    helpCharList[i] = helpMsg[i];
+                    goalCharList[i] = msg[i];
                     break;
                 }
             }
         }
     }
-    else // Scramble a character, if it does not match
+    else // Scramble some characters, if they do not match
     {
-        for (let k=0; k<10; k++)
+        let nonMachCount = msg.length - matchCount;
+        for (let k=0; k<(nonMachCount/2)+1; k++)
         {
-            let i = randomInt(helpMsg.length - matchCount) + matchCount;
-            if (helpCharList[i] !== helpMsg[i]) helpCharList[i] = randomChar(msgNoise);
+            let i = randomInt(msg.length + 5 - matchCount) + matchCount;
+            if ((i >= msg.length) || (goalCharList[i] !== msg[i])) goalCharList[i] = randomChar(msgNoise);
         }
     }
 
-    let x = textLeft;
-    for (let i=0; i<helpMsg.length; i++)
+    //render
+    let characterPixelWidth = ctx.measureText('_').width;
+    let x = msgLeft;
+    for (let i=matchCount; i<msg.length+5; i++)
     {
-        if (helpCharList[i] == helpMsg[i]) ctx.fillStyle = colorNearWhite;
+        if ((i < msg.length) && (goalCharList[i] == msg[i])) ctx.fillStyle = colorNearWhite;
         else ctx.fillStyle = colorGray;
-        ctx.fillText(helpCharList[i], x, textBot);
+        ctx.fillText(goalCharList[i], x, msgBot);
         x += characterPixelWidth;
     }
+    return false;
 }
-
-
 
 
 function displayStatus(ship)
 {
-    ctx.font = "18px RobotoMono";
+    //ctx.font = "18px RobotoMono";
+    ctx.fillStyle = colorNearWhite;
+    ctx.font = "18px SourceSansPro-Light";
     ctx.setTransform(1, 0, 0, 1, 0, 0);
-    ctx.fillStyle = "white";
-    ctx.fillText("Gates: " + gatesCompleted, 10, 30);
-    ctx.fillText("Time: " + gameTime, 10, 50);
     let speed = Math.sqrt(shipSpeedX * shipSpeedX + shipSpeedY * shipSpeedY) * 10.0;
-    ctx.fillText("Linear Speed: " + speed.toFixed(1) + " m/s", 10, 70);
-    ctx.fillText("Forward: " + ship.heading.toFixed(1) + "°", 10, 90);
+    let tmpStatus =
+        [
+            "Gates: " + String(gatesCompleted),
+            "Time: " + String(gameTime),
+            "Linear Speed: " + speed.toFixed(1) + " m/s",
+            "Forward: " + ship.heading.toFixed(1) + "°"
+        ];
+
+    for (let i = 0; i < tmpStatus.length; i++)
+    {
+        scrambleText(tmpStatus[i], statusLineList[i], "18px", 10, 30+i*20)
+    }
 }
-
-
 
 
 
 function displayCommands(ship)
 {
-    ctx.font = "18px RobotoMono";
+    //ctx.font = "18px RobotoMono";
+    ctx.font = "18px SourceSansPro-Regular";
     ctx.setTransform(1, 0, 0, 1, 0, 0);
-    // var colorAzure = "#00A0F0";
-    // var colorNearWhite = "#FAFAFA";
-    // var colorGray = "#757575";
 
     let top = 130;
     let left = 10;
@@ -203,4 +229,19 @@ function displayCommands(ship)
     ctx.globalAlpha = 1;
     ctx.fillStyle = colorNearWhite;
     ctx.fillText("C: Hide/Show Commands", left, top+6*height);
+}
+
+var title1 = "V E C T O R  J O C K E Y";
+var title2 = "Spaceflight Training Simulator.";
+function displayTitle()
+{
+    ctx.fillStyle = colorNearWhite;
+
+    ctx.font = "45px SourceSansPro-Light";
+    let textWidth = ctx.measureText(title1).width;
+    ctx.fillText(title1, (canvasWidth-textWidth)/2, canvasHeight/2 + 100);
+
+    ctx.font = "24px SourceSansPro-Light";
+    textWidth = ctx.measureText(title2).width;
+    ctx.fillText(title2, (canvasWidth-textWidth)/2, canvasHeight/2 + 150);
 }

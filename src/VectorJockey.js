@@ -7,6 +7,8 @@ var shipImage = new Image();
 var stationImage = new Image();
 var gateImage = new Image();
 var fileObject;
+var isFont0Loaded = false;
+var isFont1Loaded = false;
 
 var shipList, gateList, stationList;
 var starList = [];
@@ -24,7 +26,9 @@ var zoomScale, zoomGoal, zoomOrg, zoomTime;
 var offsetX, offsetY;
 
 var canvasImage, canvasData, canvasBuf;
-var game_font = new FontFace('RobotoMono', 'url(data/RobotoMono-Regular.woff)');
+//var game_font = new FontFace('RobotoMono', 'url(data/RobotoMono-Regular.woff)');
+var gameFont0 = new FontFace('SourceSansPro-Light', 'url(data/SourceSansPro-Light.woff)');
+var gameFont1 = new FontFace('SourceSansPro-Regular', 'url(data/SourceSansPro-Regular.woff)');
 
 var minX, maxX, minY, maxY;
 const LERP_TIME = 0.75;
@@ -76,6 +80,8 @@ var gradientArrowBot, gradientArrowTop, gradientArrowLeft, gradientArrowRight;
 var colorAzure = "#00A0F0";
 var colorNearWhite = "#FAFAFA";
 var colorGray = "#757575";
+
+var isDisplayTitle = false;
 
 window.onload = function () {init();};
 
@@ -135,7 +141,6 @@ function init()
     gradientArrowRight.addColorStop("0.5", "#085a79");
     gradientArrowRight.addColorStop("1.0", colorAzure);
 
-
     thrustSystemMain = new ThrustSystem(900, 11, 10);
     thrustSystemCWB = new ThrustSystem(150, 2, 3);
     thrustSystemCWF = new ThrustSystem(150, 2, 3);
@@ -146,13 +151,21 @@ function init()
     level2 = new Level_2();
     initLevel(level1);
 
-    game_font.load().then(function(loaded_face)
+    gameFont0.load().then(function(loaded_face)
     {
         document.fonts.add(loaded_face);
         initHelp();
-    }).catch(function(error) {
-        // error occurred
-    });
+        isFont0Loaded = true;
+        if (isFont1Loaded) isDisplayTitle = true;
+    }).catch(function(error) {});
+
+    gameFont1.load().then(function(loaded_face)
+    {
+        document.fonts.add(loaded_face);
+        initHelp();
+        isFont1Loaded = true;
+        if (isFont0Loaded) isDisplayTitle = true;
+    }).catch(function(error) {});
 
     fileObject = new XMLHttpRequest();
 
@@ -160,7 +173,6 @@ function init()
     fileObject.open("GET", "data/BrightStarCatalog.csv", true);
     fileObject.setRequestHeader("Content-Type",  "application/x-www-form-urlencoded");
     fileObject.send();
-
 
     window.addEventListener('keydown', keyDown);
     window.addEventListener('mousedown', mouseDown);
@@ -183,7 +195,7 @@ function initLevel(level)
     dragX=0
     dragY=0;
     helpCounter = 0;
-    helpSec = -1;
+
     tractorBeamNodes = [];
     isCommandVisible = true;
     isShipFullHistory = true;
@@ -208,11 +220,20 @@ function initLevel(level)
     stationList = [];
 
     gameState = GameStateEnum.PLAYING;
-    gameOverFrame = -1
     shipState = ShipStateEnum.OFF;
     movePending = false;
 
+    for (let i = 0; i < statusLineList[0].length; i++)
+    {
+        statusLineList[0][i] = randomChar(msgNoise);
+        statusLineList[1][i] = randomChar(msgNoise);
+        statusLineList[2][i] = randomChar(msgNoise);
+        statusLineList[3][i] = randomChar(msgNoise);
+    }
+
     currentLevel.init();
+    infoMsg = currentLevel.getNextHelpMsg()
+    infoSec = 0;
 }
 
 //********************************** render loop *********************************************************************
@@ -254,8 +275,8 @@ function render()
             if (tractorBeamNodes[0].isInside(ship.x, ship.y))
             {
                 gameState = GameStateEnum.PLAYING;
-                helpMsg = "Tractor Beam Off. You may resume control of ship.";
-                helpSec = 0;
+                infoMsg = "Tractor Beam Off.    You may resume control of ship.";
+                infoSec = 0;
                 isCommandVisible = true;
             }
         }
@@ -351,6 +372,7 @@ function render()
         displayStatus(ship);
         if (isCommandVisible) displayCommands(ship);
         displayMessage();
+        if (isDisplayTitle) displayTitle();
     }
 
     requestAnimationFrameProtected();
@@ -588,6 +610,7 @@ function renderOffScreenArrow(direction)
 
 function keyDown(event)
 {
+    if (isDisplayTitle) isDisplayTitle = false;
     if (movePending) return;
     let ship0 = shipList[shipList.length - 1];
 
@@ -612,8 +635,8 @@ function keyDown(event)
         }
         else
         {
-            helpMsg = "Counterclockwise thrusters disabled. Maximum safe angular speed: 15°/timestep.";
-            helpSec = 0;
+            infoMsg = "Counterclockwise thrusters disabled. Maximum safe angular speed: 15°/timestep.";
+            infoSec = 0;
         }
 
     }
@@ -629,8 +652,8 @@ function keyDown(event)
         }
         else
         {
-            helpMsg = "Clockwise thrusters disabled. Maximum safe angular speed: 15°/timestep.";
-            helpSec = 0;
+            infoMsg = "Clockwise thrusters disabled. Maximum safe angular speed: 15°/timestep.";
+            infoSec = 0;
         }
     }
     else if ((event.keyCode == KEY_SPACE) && (gameState == GameStateEnum.PLAYING))
@@ -638,8 +661,8 @@ function keyDown(event)
         if ((shipSpeedX === 0) && (shipSpeedY === 0) && (shipAngularSpeed === 0) && shipState === ShipStateEnum.OFF)
         {
             isCommandVisible = true;
-            helpMsg = "Ship is at Rest. Activate a Thruster.";
-            helpSec = 0;
+            infoMsg = "Ship is at Rest. Activate a Thruster.";
+            infoSec = 0;
         }
         else
         {
@@ -799,8 +822,8 @@ function checkBoundary(ship)
         if (!station.isInside(ship.x, ship.y))
         {
             gameState = GameStateEnum.TRACTOR_BEAM;
-            helpMsg = "Tractor Beam Engaged. Thrusters temporarily disabled. Enjoy the ride.";
-            helpSec = 0;
+            infoMsg = "Tractor Beam Engaged. Thrusters temporarily disabled. Enjoy the ride.";
+            infoSec = 0;
             tractorBeamNodes = [station, station.neighbor];
             tractorBeamHeadingGoal = Math.round(Math.atan2(-ship.y, -ship.x) / DEGREES_TO_RAD);
             if (tractorBeamHeadingGoal > 180) tractorBeamHeadingGoal = tractorBeamHeadingGoal - 360;
