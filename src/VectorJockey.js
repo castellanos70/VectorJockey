@@ -180,9 +180,24 @@ function init()
     window.addEventListener('mousemove', mouseMove);
     window.addEventListener('mouseup', mouseUp);
     window.addEventListener('wheel', mouseWheel);
-    canvas.addEventListener('touchstart', function(e){
-        alert(e.changedTouches[0].pageX) // alert pageX coordinate of touch point
+    canvas.addEventListener('touchstart', function(e)
+    {
+        isDrag = true
+        dragX = e.changedTouches[0].pageX;
+        dragY = e.changedTouches[0].pageY;
+        //alert(e.changedTouches[0].pageX) // alert pageX coordinate of touch point
     }, false)
+    canvas.addEventListener('touchmove', function(e)
+    {
+        if (isDrag)
+        {
+            let dx = e.changedTouches[0].pageX - dragX;
+            let dy = e.changedTouches[0].pageY - dragY;
+            dragX = e.changedTouches[0].pageX;
+            dragY = e.changedTouches[0].pageY;
+            dragWorld(dx, dy);
+        }
+    }
 }
 
 
