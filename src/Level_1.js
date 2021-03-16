@@ -80,7 +80,7 @@ class Level_1
         helpCounter++;
         switch(helpCounter)
         {   //@formatter:off
-            case 1: return "Vector Jockey >>=====> Level 1 <=====<< (par 275)";
+            case 1: return "Vector Jockey >>========> Level 1: Delta-V Budget, par 275";
             case 2: case 3: case 4:
                 return "Goal: Pilot ship through all of 5 gates in less time-steps than any competitor.";
             case 5: case 6: case 7:

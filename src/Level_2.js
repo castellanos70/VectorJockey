@@ -61,7 +61,7 @@ class Level_2
         helpCounter++;
         switch(helpCounter)
         {   //@formatter:off
-            case 1: return "Vector Jockey ::....::....::....::....::  Level 2  ::....::....::....::....:: (par 450)";
+            case 1: return "Vector Jockey >>========> Level 2: Finite Burn, par 450";
             case 2: case 3:
                 return "Goal: Pilot your ship through any 5 of the 6 gates in less time-steps than any competitor.";
             case 4: return "                                                                ";
