@@ -197,7 +197,7 @@ function init()
             dragY = e.changedTouches[0].pageY;
             dragWorld(dx, dy);
         }
-    }
+    }, false)
 }
 
 
