@@ -180,7 +180,7 @@ function init()
     window.addEventListener('mousemove', mouseMove);
     window.addEventListener('mouseup', mouseUp);
     window.addEventListener('wheel', mouseWheel);
-    window.addEventListener('touchstart', function(e){
+    canvas.addEventListener('touchstart', function(e){
         alert(e.changedTouches[0].pageX) // alert pageX coordinate of touch point
     }, false)
 }
