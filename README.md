@@ -10,5 +10,4 @@ Also at top level (not inside a function) in this file is <tt>window.onload = fu
 Main game loop is also in this file:
 <pre><tt>     src/VectorJockey.js --> render() </tt></pre>
 The last line of <tt>render()</tt> is <tt>requestAnimationFrameProtected()</tt> which (when a frame is not already pending) calls
-<pre><tt>     src/VectorJockey.js --> requestAnimationFrame(render); </tt></pre>
-This, is what makes <tt>render() </tt>the animation loop <br>
+<pre><tt>     src/VectorJockey.js --> requestAnimationFrame(render); </tt> This makes <tt>render() </tt>the animation loop </pre><br>
