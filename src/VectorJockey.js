@@ -26,7 +26,7 @@ var zoomScale, zoomGoal, zoomOrg, zoomTime;
 var offsetX, offsetY;
 
 var canvasImage, canvasData, canvasBuf;
-//var game_font = new FontFace('RobotoMono', 'url(data/RobotoMono-Regular.woff)');
+//var game_font = new FontFace('RobotoMono', 'url(data/RobotoMono-Regular.woff)');  fix this
 var gameFont0 = new FontFace('SourceSansPro-Light', 'url(data/SourceSansPro-Light.woff)');
 var gameFont1 = new FontFace('SourceSansPro-Regular', 'url(data/SourceSansPro-Regular.woff)');
 
