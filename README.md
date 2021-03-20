@@ -3,12 +3,12 @@
 
 <h2>SOURCE CODE Guide:</h2>
 
-Start in src/VectorJockey.js:<br>
+Start in <tt>src/VectorJockey.js</tt>:<br>
 most of the global variables are at the top of src/VectorJockey.js<br>
 Also in this file is <tt>window.onload = function () {init();};</tt> which calls <br>
-<tt>     src/VectorJockey.js --> init() </tt>when the page is loaded. <br> <br>
+<pre><tt>     src/VectorJockey.js --> init() </tt></pre>when the page is loaded. <br> <br>
 Main game loop is also in this file: <br>
-<tt>     src/VectorJockey.js --> render() </tt><br>
+<pre><tt>     src/VectorJockey.js --> render() </tt></pre><br>
 The last line of <tt>render()</tt> is <tt>requestAnimationFrameProtected()</tt> which (when a frame is not already pending) calls <br>
-<tt>     src/VectorJockey.js --> requestAnimationFrame(render); </tt><br>
+<pre><tt>     src/VectorJockey.js --> requestAnimationFrame(render); </tt></pre><br>
 This, is what makes <tt>render() </tt>the animation loop <br>
