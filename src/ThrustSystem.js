@@ -45,8 +45,8 @@ class ThrustSystem
     {
         ctx.setTransform(1, 0, 0, 1, 0, 0);
 
-        let x = (offsetX+ship.x)*zoomScale;
-        let y = (offsetY+ship.y)*zoomScale;
+        let x = (offsetX+ship.loc.x)*zoomScale;
+        let y = (offsetY+ship.loc.y)*zoomScale;
 
         ctx.translate(x, y);
         ctx.rotate(ship.heading*DEGREES_TO_RAD);
