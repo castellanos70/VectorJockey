@@ -95,9 +95,9 @@ class Ship
         this.heading = heading;
         this.state = state;
     }
-    isInside (stations)
+    isOutside (stations)
     {
-       return this.loc.cross(stations) < 0
+       return this.loc.cross(stations) > 0 ? stations : null
     }
 }
 
@@ -295,7 +295,7 @@ function render()
         {
             ship.loc.x += 2.0 * Math.cos(ship.heading * DEGREES_TO_RAD);
             ship.loc.y += 2.0 * Math.sin(ship.heading * DEGREES_TO_RAD);
-            if (ship.isInside(tractorBeamNodes))
+            if (ship.isOutside(tractorBeamNodes) == null)
             {
                 gameState = GameStateEnum.PLAYING;
                 infoMsg = "Tractor Beam Off.    You may resume control of ship.";
@@ -840,19 +840,18 @@ function updateGates(ship0, ship)
 function checkBoundary(ship)
 {
     if (gameState !== GameStateEnum.PLAYING) return;
-    for (stations of boundaryList)
+
+    stations = boundaryList.filter(stations => ship.isOutside(stations))
+    if (stations.length) 
     {
-       if (! ship.isInside(stations))
-       {
-            gameState = GameStateEnum.TRACTOR_BEAM;
-            infoMsg = "Tractor Beam Engaged. Thrusters temporarily disabled. Enjoy the ride.";
-            infoSec = 0;
-            tractorBeamNodes = stations ;
-            tractorBeamHeadingGoal = Math.round(Math.atan2(-ship.loc.y, -ship.loc.x) / DEGREES_TO_RAD);
-            if (tractorBeamHeadingGoal > 180) tractorBeamHeadingGoal = tractorBeamHeadingGoal - 360;
-            if (tractorBeamHeadingGoal === -180) tractorBeamHeadingGoal = 180;
-            return;
-       }
+         gameState = GameStateEnum.TRACTOR_BEAM;
+         infoMsg = "Tractor Beam Engaged. Thrusters temporarily disabled. Enjoy the ride.";
+         infoSec = 0;
+         tractorBeamNodes = stations[0]
+         tractorBeamHeadingGoal = Math.round(Math.atan2(-ship.loc.y, -ship.loc.x) / DEGREES_TO_RAD);
+         if (tractorBeamHeadingGoal > 180) tractorBeamHeadingGoal = tractorBeamHeadingGoal - 360;
+         if (tractorBeamHeadingGoal === -180) tractorBeamHeadingGoal = 180;
+         return;
     }
 }
 
