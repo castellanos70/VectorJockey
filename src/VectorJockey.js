@@ -554,8 +554,26 @@ function renderBoundary(ship)
     }
 }
 
+const zip = (a,b,c) => a.map ((k,i) => [k, b[i], c[i]]);
+
 function renderOffScreenArrow(direction)
 {
+    function makeArrowStroke(arrows, x, y)
+    {
+        let p0 = arrows.shift()
+        let p1 = arrows[1]
+        let p2 = arrows[2]
+        ctx.globalAlpha = Math.abs(Math.sin(clockSec));
+        ctx.beginPath();
+        ctx.lineWidth = arrowWidth;
+        ctx.moveTo(x + p0[0],y + p0[1])
+        for (point of arrows) 
+        {
+           ctx.lineTo(x + point[0],y + point[1])
+        }
+        ctx.stroke();
+        ctx.globalAlpha = 1;
+    }
     isShipOffScreen = true;
     ctx.setTransform(1, 0, 0, 1, 0, 0);
 
@@ -565,51 +583,36 @@ function renderOffScreenArrow(direction)
         let y = canvasHeight;
         ctx.strokeStyle = gradientArrowBot;
 
-        for (let i=0; i<arrowOffset.length; i++)
-        {
-            ctx.globalAlpha = Math.abs(Math.sin(clockSec));
-            ctx.beginPath();
-            ctx.lineWidth = arrowWidth[i];
-            ctx.moveTo(x + arrowLength, y-arrowOffset[i] - arrowLength);
-            ctx.lineTo(x, y-arrowOffset[i]);
-            ctx.lineTo(x - arrowLength,y-arrowOffset[i] - arrowLength);
-            ctx.stroke();
-            ctx.globalAlpha = 1;
-        }
+        zip(
+           arrowOffset.map(w => [arrowLength, -w - arrowLength]),
+           arrowOffset.map(w => [0, -w ]),
+           arrowOffset.map(w => [-arrowLength, -w - arrowLength])).
+        map(arrows => makeArrowStroke(arrows,x,y))
     }
     else if (direction === OffScreenArrowEnum.TOP)
     {
         let x = canvasWidth/2;
+        let y = 0
         ctx.strokeStyle = gradientArrowTop;
 
-        for (let i=0; i<arrowOffset.length; i++)
-        {
-            ctx.globalAlpha = Math.abs(Math.sin(clockSec));
-            ctx.beginPath();
-            ctx.lineWidth = arrowWidth[i];
-            ctx.moveTo(x + arrowLength, arrowOffset[i] + arrowLength);
-            ctx.lineTo(x, arrowOffset[i]);
-            ctx.lineTo(x - arrowLength, arrowOffset[i] + arrowLength);
-            ctx.stroke();
-            ctx.globalAlpha = 1;
-        }
+        zip(
+           arrowOffset.map(w => [arrowLength, w + arrowLength]),
+           arrowOffset.map(w => [0, w ]),
+           arrowOffset.map(w => [-arrowLength, w + arrowLength])).
+        map(arrows => makeArrowStroke(arrows,x,y))
+
     }
     else if (direction === OffScreenArrowEnum.LEFT)
     {
+        let x = 0
         let y = canvasHeight/2;
         ctx.strokeStyle = gradientArrowLeft;
 
-        for (let i=0; i<arrowOffset.length; i++)
-        {
-            ctx.globalAlpha = Math.abs(Math.sin(clockSec));
-            ctx.beginPath();
-            ctx.lineWidth = arrowWidth[i];
-            ctx.moveTo(arrowOffset[i] + arrowLength, y + arrowLength);
-            ctx.lineTo(arrowOffset[i], y);
-            ctx.lineTo(arrowOffset[i] + arrowLength, y - arrowLength);
-            ctx.stroke();
-            ctx.globalAlpha = 1;
-        }
+        zip(
+           arrowOffset.map(w => [w + arrowLength, arrowLength]),
+           arrowOffset.map(w => [w, 0]),
+           arrowOffset.map(w => [w + arrowLength, -arrowLength])).
+        map(arrows => makeArrowStroke(arrows,x,y))
     }
     else if (direction === OffScreenArrowEnum.RIGHT)
     {
@@ -617,17 +620,11 @@ function renderOffScreenArrow(direction)
         let y = canvasHeight/2;
         ctx.strokeStyle = gradientArrowRight
 
-        for (let i=0; i<arrowOffset.length; i++)
-        {
-            ctx.globalAlpha = Math.abs(Math.sin(clockSec));
-            ctx.beginPath();
-            ctx.lineWidth = arrowWidth[i];
-            ctx.moveTo(x-arrowOffset[i] - arrowLength, y + arrowLength);
-            ctx.lineTo(x-arrowOffset[i], y);
-            ctx.lineTo(x-arrowOffset[i] - arrowLength, y - arrowLength);
-            ctx.stroke();
-            ctx.globalAlpha = 1;
-        }
+        zip(
+           arrowOffset.map(w => [-w - arrowLength, arrowLength]),
+           arrowOffset.map(w => [-w, 0]),
+           arrowOffset.map(w => [-w - arrowLength, -arrowLength])).
+        map(arrows => makeArrowStroke(arrows,x,y))
     }
 }
 
