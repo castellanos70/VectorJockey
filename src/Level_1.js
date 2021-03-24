@@ -11,7 +11,7 @@ class Level_1
         minY = -3000;
         maxY = 3000;
 
-        let ship = new Ship(new Coord(0, 0), 0, ShipStateEnum.BACK);
+        let ship = new Ship(new Coord(0, 0), 0, ShipStateEnum.OFF);
         shipList.push(ship);
 
         gateList.push(new Gate(500, -200, 80, 600, "#B8C41490"));
@@ -20,7 +20,7 @@ class Level_1
         gateList.push(new Gate(-700, 400, 45, 600, "#d181d990"));
         gateList.push(new Gate(100, 700, 165, 500, "#fd7f0290"));
 
-        var lastStation;
+        let lastStation;
         for (let k = 0; k < 5; k++)
         {
             let x = maxX * Math.cos(k * 2.0 * Math.PI / 5.0);
