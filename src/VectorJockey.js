@@ -10,7 +10,7 @@ var fileObject;
 var isFont0Loaded = false;
 var isFont1Loaded = false;
 
-var shipList, gateList, stationList;
+var shipList, gateList, stationList, boundaryList;
 var starList = [];
 var currentLevel, level1, level2;
 
@@ -26,7 +26,7 @@ var zoomScale, zoomGoal, zoomOrg, zoomTime;
 var offsetX, offsetY;
 
 var canvasImage, canvasData, canvasBuf;
-//var game_font = new FontFace('RobotoMono', 'url(data/RobotoMono-Regular.woff)');
+//var game_font = new FontFace('RobotoMono', 'url(data/RobotoMono-Regular.woff)');  fix this
 var gameFont0 = new FontFace('SourceSansPro-Light', 'url(data/SourceSansPro-Light.woff)');
 var gameFont1 = new FontFace('SourceSansPro-Regular', 'url(data/SourceSansPro-Regular.woff)');
 
@@ -89,12 +89,15 @@ window.onload = function () {init();};
 
 class Ship
 {
-    constructor(x, y, heading, state)
+    constructor(loc, heading, state)
     {
-        this.x = x;
-        this.y = y;
+        this.loc = loc;
         this.heading = heading;
         this.state = state;
+    }
+    isOutside (stations)
+    {
+       return this.loc.cross(stations) > 0 ? stations : null
     }
 }
 
@@ -117,7 +120,7 @@ function init()
     ctx.canvas.height = canvasHeight;
     canvasImage = ctx.getImageData(0, 0, canvasWidth, canvasHeight);
 
-    animationShip = new Ship(0,0,0,0);
+    animationShip = new Ship(new Coord(0,0),0,0);
 
     let y = canvasHeight;
     gradientArrowBot = ctx.createLinearGradient(0,y - arrowLength, 0, y-arrowOffset[0]);
@@ -180,6 +183,24 @@ function init()
     window.addEventListener('mousemove', mouseMove);
     window.addEventListener('mouseup', mouseUp);
     window.addEventListener('wheel', mouseWheel);
+    canvas.addEventListener('touchstart', function(e)
+    {
+        isDrag = true
+        dragX = e.changedTouches[0].pageX;
+        dragY = e.changedTouches[0].pageY;
+        //alert(e.changedTouches[0].pageX) // alert pageX coordinate of touch point
+    }, false)
+    canvas.addEventListener('touchmove', function(e)
+    {
+        if (isDrag)
+        {
+            let dx = e.changedTouches[0].pageX - dragX;
+            let dy = e.changedTouches[0].pageY - dragY;
+            dragX = e.changedTouches[0].pageX;
+            dragY = e.changedTouches[0].pageY;
+            dragWorld(dx, dy);
+        }
+    }, false)
 }
 
 
@@ -219,6 +240,7 @@ function initLevel(level)
     shipList=[];
     gateList=[];
     stationList = [];
+    boundaryList = [];
 
     gameState = GameStateEnum.PLAYING;
     shipState = ShipStateEnum.OFF;
@@ -271,9 +293,9 @@ function render()
 
         if ((shipSpeedX === 0) && (shipSpeedY === 0) && (shipAngularSpeed === 0) && (ship.heading === tractorBeamHeadingGoal))
         {
-            ship.x += 2.0 * Math.cos(ship.heading * DEGREES_TO_RAD);
-            ship.y += 2.0 * Math.sin(ship.heading * DEGREES_TO_RAD);
-            if (tractorBeamNodes[0].isInside(ship.x, ship.y))
+            ship.loc.x += 2.0 * Math.cos(ship.heading * DEGREES_TO_RAD);
+            ship.loc.y += 2.0 * Math.sin(ship.heading * DEGREES_TO_RAD);
+            if (ship.isOutside(tractorBeamNodes) == null)
             {
                 gameState = GameStateEnum.PLAYING;
                 infoMsg = "Tractor Beam Off.    You may resume control of ship.";
@@ -292,12 +314,12 @@ function render()
         if (Math.abs(shipSpeedY) < 0.0001) shipSpeedY = 0;
         if (Math.abs(shipAngularSpeed) < 4) shipAngularSpeed = 0;
         let ship0 = ship;
-        let shipX = ship0.x + shipSpeedX;
-        let shipY = ship0.y + shipSpeedY;
+        let shipX = ship0.loc.x + shipSpeedX;
+        let shipY = ship0.loc.y + shipSpeedY;
         let heading = ship0.heading + shipAngularSpeed;
         if (heading <= -180) heading = 360 + heading;
         else if (heading > 180) heading = heading - 360;
-        ship = new Ship(shipX, shipY, heading, shipState);
+        ship = new Ship(new Coord(shipX, shipY), heading, shipState);
         shipList.push(ship);
         updateGates(ship0, ship);
         checkBoundary(ship);
@@ -341,8 +363,8 @@ function render()
             let tmpShip2 = shipList[shipHistoryAnimationIdx + 1];
 
             animationShip.state = tmpShip1.state;
-            animationShip.x = (tmpShip1.x * (0.1 - deltaSec) + tmpShip2.x * deltaSec) / 0.1;
-            animationShip.y = (tmpShip1.y * (0.1 - deltaSec) + tmpShip2.y * deltaSec) / 0.1;
+            animationShip.loc.x = (tmpShip1.loc.x * (0.1 - deltaSec) + tmpShip2.loc.x * deltaSec) / 0.1;
+            animationShip.loc.y = (tmpShip1.loc.y * (0.1 - deltaSec) + tmpShip2.loc.y * deltaSec) / 0.1;
             if (Math.abs(tmpShip1.heading - tmpShip2.heading) > 90) animationShip.heading = tmpShip1.heading;
             else
             {
@@ -363,10 +385,10 @@ function render()
     renderShipOverlay(ship);
 
     isShipOffScreen = false;
-    if ((ship.x+offsetX)*zoomScale < 0)  renderOffScreenArrow(OffScreenArrowEnum.LEFT);
-    else if ((ship.x+offsetX)*zoomScale > canvasWidth)  renderOffScreenArrow(OffScreenArrowEnum.RIGHT);
-    if ((ship.y+offsetY)*zoomScale < 0) renderOffScreenArrow(OffScreenArrowEnum.TOP);
-    else if ((ship.y+offsetY)*zoomScale > canvasHeight)  renderOffScreenArrow(OffScreenArrowEnum.BOTTOM);
+    if ((ship.loc.x+offsetX)*zoomScale < 0)  renderOffScreenArrow(OffScreenArrowEnum.LEFT);
+    else if ((ship.loc.x+offsetX)*zoomScale > canvasWidth)  renderOffScreenArrow(OffScreenArrowEnum.RIGHT);
+    if ((ship.loc.y+offsetY)*zoomScale < 0) renderOffScreenArrow(OffScreenArrowEnum.TOP);
+    else if ((ship.loc.y+offsetY)*zoomScale > canvasHeight)  renderOffScreenArrow(OffScreenArrowEnum.BOTTOM);
 
     if (isFontLoaded) //Cannot display until font is loaded
     {
@@ -383,7 +405,7 @@ function renderShip(ship)
 {
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.scale(zoomScale, zoomScale);
-    ctx.translate(offsetX+ship.x, offsetY+ship.y);
+    ctx.translate(offsetX+ship.loc.x, offsetY+ship.loc.y);
     ctx.rotate(ship.heading*DEGREES_TO_RAD)
     ctx.drawImage(shipImage,-shipImage.width/2, -shipImage.height/2);
 }
@@ -393,8 +415,8 @@ function renderShipOverlay(ship)
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.beginPath();
     ctx.lineWidth = 1;
-    let x0 = (offsetX + ship.x) * zoomScale;
-    let y0 = (offsetY + ship.y) * zoomScale;
+    let x0 = (offsetX + ship.loc.x) * zoomScale;
+    let y0 = (offsetY + ship.loc.y) * zoomScale;
     ctx.moveTo(x0, y0);
     ctx.lineTo(x0 + (maxX - minX) * shipSpeedX * zoomScale, y0 + (maxY - minY) * shipSpeedY * zoomScale);
     ctx.strokeStyle = colorAzure;
@@ -485,13 +507,13 @@ function renderBoundary(ship)
         ctx.strokeStyle = "#6309c650";
         for (const station of tractorBeamNodes)
         {
-            let x = station.x * zoomScale;
-            let y = station.y * zoomScale;
+            let x = station.loc.x * zoomScale;
+            let y = station.loc.y * zoomScale;
             for (let i = 0; i < 100; i++)
             {
                 let angle = Math.random() * 2 * Math.PI;
-                let xx = (85 * Math.cos(angle) + ship.x) * zoomScale;
-                let yy = (85 * Math.sin(angle) + ship.y) * zoomScale;
+                let xx = (85 * Math.cos(angle) + ship.loc.x) * zoomScale;
+                let yy = (85 * Math.sin(angle) + ship.loc.y) * zoomScale;
                 ctx.moveTo(x, y);
                 ctx.lineTo(xx, yy);
             }
@@ -506,8 +528,8 @@ function renderBoundary(ship)
             ctx.lineWidth = thickness;
             for (let k = 0; k < 6; k++)
             {
-                let x = stationList[k % 5].x * zoomScale;
-                let y = stationList[k % 5].y * zoomScale;
+                let x = stationList[k % 5].loc.x * zoomScale;
+                let y = stationList[k % 5].loc.y * zoomScale;
                 //console.info("vertex["+String(k)+"]: (" + String(x)+ ", " + String(y) +")");
                 if (k === 0) ctx.moveTo(x, y);
                 else
@@ -524,16 +546,34 @@ function renderBoundary(ship)
     for (const station of stationList)
     {
         ctx.setTransform(1, 0, 0, 1, 0, 0);
-        let x = station.x * zoomScale
-        let y = station.y * zoomScale
+        let x = station.loc.x * zoomScale
+        let y = station.loc.y * zoomScale
         ctx.translate(offsetX * zoomScale + x, offsetY * zoomScale + y);
         ctx.rotate((3 * (clockSec % 360) + station.heading) * DEGREES_TO_RAD);
         ctx.drawImage(stationImage, -stationImage.width / 2, -stationImage.height / 2);
     }
 }
 
+const zip = (a,b,c) => a.map ((k,i) => [k, b[i], c[i]]);
+
 function renderOffScreenArrow(direction)
 {
+    function makeArrowStroke(arrows, x, y)
+    {
+        let p0 = arrows.shift()
+        let p1 = arrows[1]
+        let p2 = arrows[2]
+        ctx.globalAlpha = Math.abs(Math.sin(clockSec));
+        ctx.beginPath();
+        ctx.lineWidth = arrowWidth;
+        ctx.moveTo(x + p0[0],y + p0[1])
+        for (point of arrows) 
+        {
+           ctx.lineTo(x + point[0],y + point[1])
+        }
+        ctx.stroke();
+        ctx.globalAlpha = 1;
+    }
     isShipOffScreen = true;
     ctx.setTransform(1, 0, 0, 1, 0, 0);
 
@@ -543,51 +583,36 @@ function renderOffScreenArrow(direction)
         let y = canvasHeight;
         ctx.strokeStyle = gradientArrowBot;
 
-        for (let i=0; i<arrowOffset.length; i++)
-        {
-            ctx.globalAlpha = Math.abs(Math.sin(clockSec));
-            ctx.beginPath();
-            ctx.lineWidth = arrowWidth[i];
-            ctx.moveTo(x + arrowLength, y-arrowOffset[i] - arrowLength);
-            ctx.lineTo(x, y-arrowOffset[i]);
-            ctx.lineTo(x - arrowLength,y-arrowOffset[i] - arrowLength);
-            ctx.stroke();
-            ctx.globalAlpha = 1;
-        }
+        zip(
+           arrowOffset.map(w => [arrowLength, -w - arrowLength]),
+           arrowOffset.map(w => [0, -w ]),
+           arrowOffset.map(w => [-arrowLength, -w - arrowLength])).
+        map(arrows => makeArrowStroke(arrows,x,y))
     }
     else if (direction === OffScreenArrowEnum.TOP)
     {
         let x = canvasWidth/2;
+        let y = 0
         ctx.strokeStyle = gradientArrowTop;
 
-        for (let i=0; i<arrowOffset.length; i++)
-        {
-            ctx.globalAlpha = Math.abs(Math.sin(clockSec));
-            ctx.beginPath();
-            ctx.lineWidth = arrowWidth[i];
-            ctx.moveTo(x + arrowLength, arrowOffset[i] + arrowLength);
-            ctx.lineTo(x, arrowOffset[i]);
-            ctx.lineTo(x - arrowLength, arrowOffset[i] + arrowLength);
-            ctx.stroke();
-            ctx.globalAlpha = 1;
-        }
+        zip(
+           arrowOffset.map(w => [arrowLength, w + arrowLength]),
+           arrowOffset.map(w => [0, w ]),
+           arrowOffset.map(w => [-arrowLength, w + arrowLength])).
+        map(arrows => makeArrowStroke(arrows,x,y))
+
     }
     else if (direction === OffScreenArrowEnum.LEFT)
     {
+        let x = 0
         let y = canvasHeight/2;
         ctx.strokeStyle = gradientArrowLeft;
 
-        for (let i=0; i<arrowOffset.length; i++)
-        {
-            ctx.globalAlpha = Math.abs(Math.sin(clockSec));
-            ctx.beginPath();
-            ctx.lineWidth = arrowWidth[i];
-            ctx.moveTo(arrowOffset[i] + arrowLength, y + arrowLength);
-            ctx.lineTo(arrowOffset[i], y);
-            ctx.lineTo(arrowOffset[i] + arrowLength, y - arrowLength);
-            ctx.stroke();
-            ctx.globalAlpha = 1;
-        }
+        zip(
+           arrowOffset.map(w => [w + arrowLength, arrowLength]),
+           arrowOffset.map(w => [w, 0]),
+           arrowOffset.map(w => [w + arrowLength, -arrowLength])).
+        map(arrows => makeArrowStroke(arrows,x,y))
     }
     else if (direction === OffScreenArrowEnum.RIGHT)
     {
@@ -595,17 +620,11 @@ function renderOffScreenArrow(direction)
         let y = canvasHeight/2;
         ctx.strokeStyle = gradientArrowRight
 
-        for (let i=0; i<arrowOffset.length; i++)
-        {
-            ctx.globalAlpha = Math.abs(Math.sin(clockSec));
-            ctx.beginPath();
-            ctx.lineWidth = arrowWidth[i];
-            ctx.moveTo(x-arrowOffset[i] - arrowLength, y + arrowLength);
-            ctx.lineTo(x-arrowOffset[i], y);
-            ctx.lineTo(x-arrowOffset[i] - arrowLength, y - arrowLength);
-            ctx.stroke();
-            ctx.globalAlpha = 1;
-        }
+        zip(
+           arrowOffset.map(w => [-w - arrowLength, arrowLength]),
+           arrowOffset.map(w => [-w, 0]),
+           arrowOffset.map(w => [-w - arrowLength, -arrowLength])).
+        map(arrows => makeArrowStroke(arrows,x,y))
     }
 }
 
@@ -785,23 +804,23 @@ function updateGates(ship0, ship)
         let gateMaxX = Math.max(gate.x1,gate.x2);
         let gateMinY = Math.min(gate.y1,gate.y2);
         let gateMaxY = Math.max(gate.y1,gate.y2);
-        if ((gateMinX > ship0.x) && (gateMinX > ship.x)) continue;
-        if ((gateMinY > ship0.y) && (gateMinY > ship.y)) continue;
-        if ((gateMaxX < ship0.x) && (gateMaxX < ship.x)) continue;
-        if ((gateMaxY < ship0.y) && (gateMaxY < ship.y)) continue;
+        if ((gateMinX > ship0.loc.x) && (gateMinX > ship.loc.x)) continue;
+        if ((gateMinY > ship0.loc.y) && (gateMinY > ship.loc.y)) continue;
+        if ((gateMaxX < ship0.loc.x) && (gateMaxX < ship.loc.x)) continue;
+        if ((gateMaxY < ship0.loc.y) && (gateMaxY < ship.loc.y)) continue;
 
-        let yy0 = gate.slope * ship0.x + gate.yIntercept;
-        let yy  = gate.slope * ship.x + gate.yIntercept;
-        if (ship0.y <= yy0)
+        let yy0 = gate.slope * ship0.loc.x + gate.yIntercept;
+        let yy  = gate.slope * ship.loc.x + gate.yIntercept;
+        if (ship0.loc.y <= yy0)
         {
-            if (ship.y >= yy)
+            if (ship.loc.y >= yy)
             {
                 if (gate.state == GateStateEnum.ON) clearedGate = true;
             }
         }
-        if (ship0.y >= yy0)
+        if (ship0.loc.y >= yy0)
         {
-            if (ship.y <= yy)
+            if (ship.loc.y <= yy)
             {
                 if (gate.state == GateStateEnum.ON) clearedGate = true;
             }
@@ -818,19 +837,18 @@ function updateGates(ship0, ship)
 function checkBoundary(ship)
 {
     if (gameState !== GameStateEnum.PLAYING) return;
-    for (const station of stationList)
+
+    stations = boundaryList.filter(stations => ship.isOutside(stations))
+    if (stations.length) 
     {
-        if (!station.isInside(ship.x, ship.y))
-        {
-            gameState = GameStateEnum.TRACTOR_BEAM;
-            infoMsg = "Tractor Beam Engaged. Thrusters temporarily disabled. Enjoy the ride.";
-            infoSec = 0;
-            tractorBeamNodes = [station, station.neighbor];
-            tractorBeamHeadingGoal = Math.round(Math.atan2(-ship.y, -ship.x) / DEGREES_TO_RAD);
-            if (tractorBeamHeadingGoal > 180) tractorBeamHeadingGoal = tractorBeamHeadingGoal - 360;
-            if (tractorBeamHeadingGoal === -180) tractorBeamHeadingGoal = 180;
-            return;
-        }
+         gameState = GameStateEnum.TRACTOR_BEAM;
+         infoMsg = "Tractor Beam Engaged. Thrusters temporarily disabled. Enjoy the ride.";
+         infoSec = 0;
+         tractorBeamNodes = stations[0]
+         tractorBeamHeadingGoal = Math.round(Math.atan2(-ship.loc.y, -ship.loc.x) / DEGREES_TO_RAD);
+         if (tractorBeamHeadingGoal > 180) tractorBeamHeadingGoal = tractorBeamHeadingGoal - 360;
+         if (tractorBeamHeadingGoal === -180) tractorBeamHeadingGoal = 180;
+         return;
     }
 }
 

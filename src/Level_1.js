@@ -11,7 +11,7 @@ class Level_1
         minY = -3000;
         maxY = 3000;
 
-        let ship = new Ship(0, 0, 0, ShipStateEnum.BACK);
+        let ship = new Ship(new Coord(0, 0), 0, ShipStateEnum.BACK);
         shipList.push(ship);
 
         gateList.push(new Gate(500, -200, 80, 600, "#B8C41490"));
@@ -20,22 +20,18 @@ class Level_1
         gateList.push(new Gate(-700, 400, 45, 600, "#d181d990"));
         gateList.push(new Gate(100, 700, 165, 500, "#fd7f0290"));
 
+        var lastStation;
         for (let k = 0; k < 5; k++)
         {
             let x = maxX * Math.cos(k * 2.0 * Math.PI / 5.0);
             let y = maxY * Math.sin(k * 2.0 * Math.PI / 5.0);
 
-            let edgeType = StationEdgeTypeEnum.UPPER;
-            if (k === 0 || k === 1) edgeType = StationEdgeTypeEnum.LOWER;
-            else if (k === 2) edgeType = StationEdgeTypeEnum.VERTICAL_LEFT;
-            stationList.push(new Station(k, x, y, edgeType));
+            let station = new Station(new Coord(x,y));
+            stationList.push(station)
+            if (k>0) boundaryList.push([lastStation, station])
+            lastStation = station
         }
-
-        //Uses neighbor in calculation so must be done after list is fully constructed.
-        for (const station of stationList)
-        {
-            station.calculateLine();
-        }
+        boundaryList.push([lastStation, stationList[0]])
     }
 
     clearedGate()
