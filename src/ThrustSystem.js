@@ -7,6 +7,30 @@ colorList = ["#C32005AA", "#C43006AA","#D63E06AA", "#ED6414AA",
     "#CCAAFFAA", "#DDBBFFAA", "#CCDDFFAA", "#CCDDFFAA"];
 
 
+class Particle
+{
+    respawn(height,baseAge)
+    {
+        this.x = 0;
+        this.y = (Math.random()*height)-height/2;
+        let minV = -(1 + 10*0 + 2*(0));
+        let maxV = -(1 + 10*(1) + 2*(height/2-0));
+        this.vx = -(1 + 10*Math.random() + 2*(height/2-Math.abs(this.y)));
+        this.age = Math.floor(baseAge/2+baseAge*Math.random());
+        this.color = colorList[Math.floor(colorList.length*(this.vx-minV)/(maxV-minV))];
+    }
+
+    render(brighter, height, baseAge)
+    {
+         this.x += this.vx;
+         this.age--;
+         ctx.fillStyle = this.color;
+         if (brighter) ctx.fillRect(this.x, this.y-1, 3, 3);
+         else ctx.fillRect(this.x, this.y, 1, 1);
+         if (this.age <= 0) this.respawn(height, baseAge);
+   }
+}
+
 class ThrustSystem
 {
     constructor(particleCount, height, baseAge)
@@ -14,32 +38,16 @@ class ThrustSystem
         let n = particleCount;
         this.height = height;
         this.baseAge = baseAge;
-        this.x = new Array(n);
-        this.y = new Array(n);
-        this.vx = new Array(n);
-        this.age = new Array(n);
-        this.color = new Array(n);
-        for (let i=0; i<n; i++)
-        {
-            this.respawn(i);
-        }
+        this.particles = new Array(n)
+        this.particles.fill(new Particle())
+        this.respawnAll()
     }
 
     respawnAll()
     {
-        for (let i = 0; i < this.x.length; i++) this.respawn(i);
+       this.particles.forEach(particle=>particle.respawn(this.height, this.baseAge))
     }
 
-    respawn(i)
-    {
-        this.x[i] = 0;
-        this.y[i] = (Math.random()*this.height)-this.height/2;
-        let minV = -(1 + 10*0 + 2*(0));
-        let maxV = -(1 + 10*(1) + 2*(this.height/2-0));
-        this.vx[i] = -(1 + 10*Math.random() + 2*(this.height/2-Math.abs(this.y[i])));
-        this.age[i] = Math.floor(this.baseAge/2+this.baseAge*Math.random());
-        this.color[i] = colorList[Math.floor(colorList.length*(this.vx[i]-minV)/(maxV-minV))];
-    }
 
     render(ship, dx, dy, theta)
     {
@@ -53,15 +61,8 @@ class ThrustSystem
         ctx.translate(dx*zoomScale, dy*zoomScale);
         if (theta) ctx.rotate(theta*DEGREES_TO_RAD);
 
-        let m = 0.5*this.x.length;
-        for (let i=0; i<this.x.length; i++)
-        {
-            this.x[i] += this.vx[i];
-            this.age[i]--;
-            ctx.fillStyle = this.color[i];
-            if (i<m) ctx.fillRect(this.x[i], this.y[i]-1, 3, 3);
-            else ctx.fillRect(this.x[i], this.y[i], 1, 1);
-            if (this.age[i] <= 0) this.respawn(i);
-        }
+        let m = Math.floor(0.5*this.particles.length);
+        this.particles.slice(0,m).forEach(particle=>particle.render(true,this.height,this.baseAge))
+        this.particles.slice(m).forEach(particle=>particle.render(false,this.height,this.baseAge))
     }
 }

@@ -95,6 +95,7 @@ class Ship
         this.heading = heading;
         this.state = state;
     }
+
     isOutside (stations)
     {
        return this.loc.cross(stations) > 0 ? stations : null
