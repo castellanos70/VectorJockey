@@ -11,7 +11,7 @@ var isFont0Loaded = false;
 var isFont1Loaded = false;
 
 var shipList, gateList, stationList, boundaryList;
-var starList = [];
+var starList = undefined;
 var currentLevel, level1, level2;
 
 var shipSpeedX;
@@ -110,6 +110,7 @@ function init()
     document.documentElement.style.overflow = 'hidden';  // firefox, chrome
     canvas = document.getElementById("mainCanvas");
     ctx = canvas.getContext("2d");
+    canvasData = undefined;
 
     shipImage.src = document.getElementById("shipImage").src;
     stationImage.src = document.getElementById("stationImage").src;
@@ -246,6 +247,7 @@ function initLevel(level)
     gameState = GameStateEnum.PLAYING;
     shipState = ShipStateEnum.OFF;
     movePending = false;
+    renderStarsOffCanvas();
 
     for (let i = 0; i < statusLineList[0].length; i++)
     {
@@ -264,10 +266,12 @@ function initLevel(level)
 //  This is a callback function called every frame by javascript.
 //
 //This function calls itself through a callback system set up with requestAnimationFrame(render);
-//however, this is not recursion (it is like **tail** recursion, but not quite).
+//    however, this is not recursion (it is like **tail** recursion, but not quite).
 //Since requestAnimationFrame(render) is only registering a callback, it returns immediately (it does not block until
-//the render() is called and returns as is the case with normal recursion).
+//    render() is called and returns as is the case with normal recursion).
 //The next render() will not be called until this current render() exits and all its stack variables are freed.
+//DO NOT return early from this function: the final statement,  requestAnimationFrameProtected(), must be reached
+//   or animation will stop.
 //********************************************************************************************************************
 function render()
 {
@@ -568,7 +572,7 @@ function renderOffScreenArrow(direction)
         ctx.beginPath();
         ctx.lineWidth = arrowWidth;
         ctx.moveTo(x + p0[0],y + p0[1])
-        for (point of arrows) 
+        for (const point of arrows)
         {
            ctx.lineTo(x + point[0],y + point[1])
         }
@@ -791,6 +795,7 @@ function zoom(code)
     let shiftFactor = 1.0 / zoomScale - 1.0 / scale0;
     offsetX = (canvasWidth / 2.0) * shiftFactor + offsetX;
     offsetY = (canvasHeight / 2.0) * shiftFactor + offsetY;
+    renderStarsOffCanvas();
 
     //console.info("offset=" + offsetX + ", "+ offsetY+"),   zoomScale="+zoomScale + "goal="+zoomGoal + "deltaTime="+(clockSec - zoomTime));
 }
