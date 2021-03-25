@@ -105,7 +105,7 @@ class Ship
 
 function init()
 {
-    console.info("VectorJockey: by Joel Castellanos and VolatileDawn (Armin).");
+    console.info("VectorJockey: by Joel Castellanos, Ervan Darnell, VolatileDawn (Armin).");
     console.info("Copyright 2021");
     document.documentElement.style.overflow = 'hidden';  // firefox, chrome
     canvas = document.getElementById("mainCanvas");
