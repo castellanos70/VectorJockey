@@ -12,20 +12,27 @@ class Star
     {
         this.catalog = parseInt(strArray[0]);
         this.color = strArray[4][0];
-        this.name = strArray[5];
-        this.constellation = strArray[6];
+        this.name = undefined;
+        this.constellation = undefined;
+        if (strArray[5].length > 1)
+        {
+            this.name = strArray[5];
+            this.constellation = strArray[6];
+            console.info("star: "+this.name)
+        }
         let rightAscension = parseFloat(strArray[1]);
         let declination = parseFloat(strArray[2]);
+
         let theta = rightAscension*2.0*Math.PI/24.0;
-        if (rightAscension >24 || rightAscension < 0)
-        {
-            console.error("ERROR: star: "+this.catalog+"#: rightAscension="+rightAscension+"   declination="+declination)
-            this.x = undefined;
-            return;
-        }
+        //if (rightAscension >24 || rightAscension < 0)
+        //{
+        //    console.error("ERROR: star: "+this.catalog+"#: rightAscension="+rightAscension+"   declination="+declination)
+        //    this.x = undefined;
+        //    return;
+        //}
         if (declination >90 || declination < 0)
         {
-            console.error("ERROR: star: "+this.catalog+"#: rightAscension="+rightAscension+"   declination="+declination)
+        //    console.error("ERROR: star: "+this.catalog+"#: rightAscension="+rightAscension+"   declination="+declination)
             this.x = undefined;
             return;
         }
@@ -41,9 +48,20 @@ class Star
         // Omit stars exactly on the border as they will not render correctly
         //if (this.x <= 0 || this.y <= 0) this.x = -1;
         //if (this.x >= canvasWidth-1 || this.y >= canvasHeight-1) this.x = -1;
+
+        //Rotate and shift Sky to place big dipper in center
+        //theta = theta - Math.PI/4;
+
+        //let radius = 2.2*(90.0-declination)/90.0;
         let radius = (90.0-declination)/90.0;
         this.x = radius*Math.cos(theta)/SQUARE_ROOT_1HALF;
         this.y = radius*Math.sin(theta)/SQUARE_ROOT_1HALF;
+        //this.x = radius*Math.cos(theta);
+        //this.y = radius*Math.sin(theta);
+
+        //Rotate and shift Sky to place big dipper in center
+        //this.x += .35;
+        //this.y -= .3;
         this.magnitude = parseFloat(strArray[3]);
         //if (this.x < 0)
         //{
@@ -83,11 +101,11 @@ function renderStarsOffCanvas()
     }
 
     let largerDim = Math.max(canvasWidth, canvasHeight);
-    let radius = largerDim/2;
+    let radius = (largerDim/2)/ZOOM_MIN;
     for (const star of starList)
     {
-        let x = Math.floor(radius*star.x/zoomScale + canvasWidth/2);
-        let y = Math.floor(radius*star.y/zoomScale + canvasHeight/2);
+        let x = Math.floor(radius*star.x*zoomScale + canvasWidth/2);
+        let y = Math.floor(radius*star.y*zoomScale + canvasHeight/2);
 
         // Omit stars exactly on the border as they will not render correctly
         if (x <= 0 || y <= 0)
@@ -136,6 +154,17 @@ function renderStarsOffCanvas()
             canvasData[idx+1] = color;
             canvasData[idx-canvasWidth] = color;
         }
+        //if (star.name)
+        //{
+        //    canvasData[idx-1] = color;
+        //    canvasData[idx+1] = color;
+        //    canvasData[idx-canvasWidth] = color;
+        //    canvasData[idx+canvasWidth] = color;
+        //    canvasData[1+idx-canvasWidth] = color;
+        //    canvasData[1+idx+canvasWidth] = color;
+        //    canvasData[-1+idx-canvasWidth] = color;
+        //    canvasData[-1+idx+canvasWidth] = color;
+        //}
     }
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     canvasImage.data.set(canvasBuf);

@@ -22,6 +22,8 @@ var gameTime;
 var isDrag, dragX, dragY;
 
 var zoomScale, zoomGoal, zoomOrg, zoomTime;
+const ZOOM_MAX = 1.0;
+const ZOOM_MIN = 0.1;
 
 var offsetX, offsetY;
 
@@ -782,8 +784,8 @@ function zoom(code)
     {
         zoomTime = clockSec;
         zoomOrg = zoomScale;
-        if (code === '+') zoomGoal = Math.min(1.0, zoomGoal * 1.6);
-        else if (code === '-') zoomGoal = Math.max(0.1, zoomGoal * 0.625);
+        if (code === '+') zoomGoal = Math.min(ZOOM_MAX, zoomGoal * 1.33333);
+        else if (code === '-') zoomGoal = Math.max(ZOOM_MIN, zoomGoal * 0.75);
     }
 
     if (zoomScale === zoomGoal) return;
