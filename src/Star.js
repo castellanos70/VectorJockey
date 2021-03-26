@@ -6,7 +6,7 @@ function starRGB(r,g,b)
 }
 
 //Should be static class method, but Google Closure Compiler does not support
-//Using Smithsonian Astrophysical Observatory Star Catalog prefiltered to <9.5
+//Using Smithsonian Astrophysical Observatory Star Catalog prefiltered to <12
 // Apparent magnitude Sirius (brightest star): -1.44
 // Apparent magnitude urban sky naked-eye: 3.0
 // Apparent magnitude dark sky naked-eye: 6.0
@@ -60,38 +60,38 @@ function getStarBrightness(magnitude, zoomScale)
         if (magnitude < 3.5) return 5.0;
         if (magnitude < 4.5) return 3.0;
         if (magnitude < 5.5) return 2.0;
-        if (magnitude < 7.5) return 1.0;
-        return (2**7.5)/(2**magnitude);
+        if (magnitude < 8.0) return 1.0;
+        return (2**8.0)/(2**magnitude);
     }
     if (zoomScale < 0.4)
     {
         if (magnitude < 4.0) return 5.0;
         if (magnitude < 4.5) return 3.0;
         if (magnitude < 6.0) return 2.0;
-        if (magnitude < 8.0) return 1.0;
-        return (2**8.0)/(2**magnitude);
+        if (magnitude < 9.0) return 1.0;
+        return (2**9.0)/(2**magnitude);
     }
     if (zoomScale < 0.6)
     {
-        if (magnitude < 4.0) return 5.0;
-        if (magnitude < 4.5) return 3.0;
-        if (magnitude < 6.5) return 2.0;
-        if (magnitude < 8.5) return 1.0;
-        return (2**8.5)/(2**magnitude);
+        if (magnitude < 4.2) return 5.0;
+        if (magnitude < 4.7) return 3.0;
+        if (magnitude < 7.0) return 2.0;
+        if (magnitude < 9.5) return 1.0;
+        return (2**9.5)/(2**magnitude);
     }
     if (zoomScale < 0.75)
     {
         if (magnitude < 4.5) return 5.0;
-        if (magnitude < 5.0) return 3.0;
-        if (magnitude < 7.0) return 2.0;
-        if (magnitude < 8.8) return 1.0;
-        return (2**8.8)/(2**magnitude);
+        if (magnitude < 6.0) return 3.0;
+        if (magnitude < 8.0) return 2.0;
+        if (magnitude < 10.0) return 1.0;
+        return (2**10.0)/(2**magnitude);
     }
-    if (magnitude < 5.0) return 5.0;
-    if (magnitude < 6.0) return 3.0;
-    if (magnitude < 8.0) return 2.0;
-    if (magnitude < 9.0) return 1.0;
-    return (2**9.0)/(2**magnitude);
+    if (magnitude < 6.0) return 5.0;
+    if (magnitude < 7.0) return 3.0;
+    if (magnitude < 9.0) return 2.0;
+    if (magnitude < 11.0) return 1.0;
+    return (2**11.0)/(2**magnitude);
 }
 
 //Should be static class method, but Google Closure Compiler does not support
@@ -259,17 +259,12 @@ function readStars()
             starList = [];
             for (let i = 1; i < strArray.length - 1; i++)
             {
-                //let data = strArray[i].split(',').map(Number);
                 let data = strArray[i].split(',');
                 let star = new Star(data);
                 if (star.x !== undefined)
                 {
                     starList.push(star);
                 }
-                //else
-                //{
-                //    console.info("Cropping star Harvard Catalog #" + star.catalog);
-                //}
             }
         }
         renderStarsOffCanvas();

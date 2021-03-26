@@ -156,7 +156,7 @@ function init()
     fileObject = new XMLHttpRequest();
 
     fileObject.onreadystatechange = function() {readStars();};
-    fileObject.open("GET", "data/SmithsonianStarCatalog-Ursa.csv", true);
+    fileObject.open("GET", "data/PPM-Ursa.csv", true);
     fileObject.setRequestHeader("Content-Type",  "application/x-www-form-urlencoded");
     fileObject.send();
 
