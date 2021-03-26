@@ -96,11 +96,43 @@ class Ship
         this.loc = loc;
         this.heading = heading;
         this.state = state;
+        this.thrustSystemMain = new ThrustSystem(900, 11, 10);
+        this.thrustSystemCWB = new ThrustSystem(150, 2, 3);
+        this.thrustSystemCWF = new ThrustSystem(150, 2, 3);
     }
 
     isOutside (stations)
     {
        return this.loc.cross(stations) > 0 ? stations : null
+    }
+
+    respawnMainThrust() 
+    {
+       this.thrustSystemMain.respawnAll();
+    }
+
+    respawnSideThrust() 
+    {
+       this.thrustSystemMain.respawnAll();
+    }
+
+    renderThrust(ShipStateEnum)
+    {
+       if (this.state & ShipStateEnum.BACK)
+       {
+          this.thrustSystemMain.render(ship, -(shipImage.width-4)/2, 0);
+       }
+
+       if (this.state & ShipStateEnum.CLOCKWISE)
+       {
+          this.thrustSystemCWB.render(ship, -28, 30, -90); //ship, dx, dy, rotation
+          this.thrustSystemCWF.render(ship, 39, -23, 90);
+       }
+       if (this.state & ShipStateEnum.COUNTERCLOCKWISE)
+       {
+          this.thrustSystemCWB.render(ship, -27, -30, 90);
+          this.thrustSystemCWF.render(ship, 39, 23, -90);
+       }
     }
 }
 
@@ -148,12 +180,6 @@ function init()
     gradientArrowRight.addColorStop("0", "#47a8cc00");
     gradientArrowRight.addColorStop("0.5", "#085a79");
     gradientArrowRight.addColorStop("1.0", colorAzure);
-
-    thrustSystemMain = new ThrustSystem(900, 11, 10);
-    thrustSystemCWB = new ThrustSystem(150, 2, 3);
-    thrustSystemCWF = new ThrustSystem(150, 2, 3);
-    thrustSystemCCB = new ThrustSystem(150, 2, 3);
-    thrustSystemCCF = new ThrustSystem(150, 2, 3);
 
     level1 = new Level_1();
     level2 = new Level_2();
@@ -378,11 +404,11 @@ function render()
                 animationShip.heading = (tmpShip1.heading * (0.1 - deltaSec) + tmpShip2.heading * deltaSec) / 0.1;
             }
             renderShip(animationShip);
-            renderThrust(animationShip);
+            animationShip.renderThrust(ShipStateEnum);
         }
         renderShip(ship);
     }
-    renderThrust(ship);
+    ship.renderThrust(ShipStateEnum);
 
     for (const gate of gateList)
     {
@@ -448,26 +474,6 @@ function renderShipOverlay(ship)
     ctx.arc(x0, y0, radius, startAngle, endAngle, counterclockwise);
     ctx.stroke();
 }
-
-function renderThrust(ship)
-{
-    if (ship.state & ShipStateEnum.BACK)
-    {
-        thrustSystemMain.render(ship, -(shipImage.width-4)/2, 0);
-    }
-
-    if (ship.state & ShipStateEnum.CLOCKWISE)
-    {
-        thrustSystemCWB.render(ship, -28, 30, -90); //ship, dx, dy, rotation
-        thrustSystemCWF.render(ship, 39, -23, 90);
-    }
-    if (ship.state & ShipStateEnum.COUNTERCLOCKWISE)
-    {
-        thrustSystemCWB.render(ship, -27, -30, 90);
-        thrustSystemCWF.render(ship, 39, 23, -90);
-    }
-}
-
 
 function renderGate(gate)
 {
@@ -647,7 +653,7 @@ function keyDown(event)
         else
         {
             shipState = shipState | ShipStateEnum.BACK;
-            thrustSystemMain.respawnAll();
+            ship0.respawnMainThrust()
         }
     }
     else if ((event.keyCode == KEY_A) && (gameState == GameStateEnum.PLAYING))
@@ -656,8 +662,7 @@ function keyDown(event)
         else if (shipAngularSpeed > -15)
         {
             shipState = shipState | ShipStateEnum.COUNTERCLOCKWISE;
-            thrustSystemCWB.respawnAll();
-            thrustSystemCWF.respawnAll();
+            ship0.respawnSideThrust();
             if (shipState & ShipStateEnum.CLOCKWISE) shipState = shipState - ShipStateEnum.CLOCKWISE;
         }
         else
@@ -673,8 +678,7 @@ function keyDown(event)
         else if (shipAngularSpeed < 15)
         {
             shipState = shipState | ShipStateEnum.CLOCKWISE;
-            thrustSystemCWB.respawnAll();
-            thrustSystemCWF.respawnAll();
+            ship0.respawnSideThrust();
             if (shipState & ShipStateEnum.COUNTERCLOCKWISE) shipState = shipState - ShipStateEnum.COUNTERCLOCKWISE;
         }
         else
