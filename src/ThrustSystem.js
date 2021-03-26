@@ -40,12 +40,7 @@ class ThrustSystem
         this.baseAge = baseAge;
         this.particles = new Array(n)
         this.particles.fill(new Particle())
-        this.respawnAll()
-    }
-
-    respawnAll()
-    {
-       this.particles.forEach(particle=>particle.respawn(this.height, this.baseAge))
+        this.particles.forEach(particle=>particle.respawn(this.height, this.baseAge))
     }
 
 
@@ -65,4 +60,23 @@ class ThrustSystem
         this.particles.slice(0,m).forEach(particle=>particle.render(true,this.height,this.baseAge))
         this.particles.slice(m).forEach(particle=>particle.render(false,this.height,this.baseAge))
     }
+}
+
+class ThrustSystems {
+   constructor () 
+   {
+      this.respawnMainThrust();
+      this.respawnSideThrust();
+   }
+   respawnMainThrust() 
+   {
+      this.thrustSystemMain = new ThrustSystem(900, 11, 10);
+   }
+
+   respawnSideThrust() 
+   {
+      this.thrustSystemCWB = new ThrustSystem(150, 2, 3);
+      this.thrustSystemCWF = new ThrustSystem(150, 2, 3);
+   }
+
 }

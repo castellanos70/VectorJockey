@@ -88,55 +88,6 @@ var isDisplayTitle = true;
 
 window.onload = function () {init();};
 
-
-class Ship
-{
-    constructor(loc, heading, state)
-    {
-        this.loc = loc;
-        this.heading = heading;
-        this.state = state;
-        this.thrustSystemMain = new ThrustSystem(900, 11, 10);
-        this.thrustSystemCWB = new ThrustSystem(150, 2, 3);
-        this.thrustSystemCWF = new ThrustSystem(150, 2, 3);
-    }
-
-    isOutside (stations)
-    {
-       return this.loc.cross(stations) > 0 ? stations : null
-    }
-
-    respawnMainThrust() 
-    {
-       this.thrustSystemMain.respawnAll();
-    }
-
-    respawnSideThrust() 
-    {
-       this.thrustSystemMain.respawnAll();
-    }
-
-    renderThrust(ShipStateEnum)
-    {
-       if (this.state & ShipStateEnum.BACK)
-       {
-          this.thrustSystemMain.render(ship, -(shipImage.width-4)/2, 0);
-       }
-
-       if (this.state & ShipStateEnum.CLOCKWISE)
-       {
-          this.thrustSystemCWB.render(ship, -28, 30, -90); //ship, dx, dy, rotation
-          this.thrustSystemCWF.render(ship, 39, -23, 90);
-       }
-       if (this.state & ShipStateEnum.COUNTERCLOCKWISE)
-       {
-          this.thrustSystemCWB.render(ship, -27, -30, 90);
-          this.thrustSystemCWF.render(ship, 39, 23, -90);
-       }
-    }
-}
-
-
 function init()
 {
     console.info("VectorJockey: by Joel Castellanos, Ervan Darnell, VolatileDawn (Armin).");
@@ -156,7 +107,8 @@ function init()
     ctx.canvas.height = canvasHeight;
     canvasImage = ctx.getImageData(0, 0, canvasWidth, canvasHeight);
 
-    animationShip = new Ship(new Coord(0,0),0,0);
+    thrusts = new ThrustSystems()
+    animationShip = new Ship(new Coord(0,0),0,ShipStateEnum.OFF,thrusts);
 
     let y = canvasHeight;
     gradientArrowBot = ctx.createLinearGradient(0,y - arrowLength, 0, y-arrowOffset[0]);
@@ -352,7 +304,7 @@ function render()
         let heading = ship0.heading + shipAngularSpeed;
         if (heading <= -180) heading = 360 + heading;
         else if (heading > 180) heading = heading - 360;
-        ship = new Ship(new Coord(shipX, shipY), heading, shipState);
+        ship = new Ship(new Coord(shipX, shipY), heading, shipState, thrusts);
         shipList.push(ship);
         updateGates(ship0, ship);
         checkBoundary(ship);
@@ -371,12 +323,9 @@ function render()
     ship.state = shipState;
     if (isShipFullHistory)
     {
-        let startIdx = 0;
-        if ((gameState === GameStateEnum.PLAYING) &&(shipList.length > 2500)) startIdx = shipList.length - 1000;
-        for (let i=startIdx; i<shipList.length; i++)
-        {
-            renderShip(shipList[i]);
-        }
+        let startIdx = ((gameState === GameStateEnum.PLAYING) &&(shipList.length > 2500)) ?
+           shipList.length - 1000 : 0;
+        shipList.slice(startIdx).forEach(ship=>ship.render())
     }
     else
     {
@@ -403,10 +352,10 @@ function render()
             {
                 animationShip.heading = (tmpShip1.heading * (0.1 - deltaSec) + tmpShip2.heading * deltaSec) / 0.1;
             }
-            renderShip(animationShip);
+            animationShip.render();
             animationShip.renderThrust(ShipStateEnum);
         }
-        renderShip(ship);
+        ship.render();
     }
     ship.renderThrust(ShipStateEnum);
 
@@ -415,7 +364,7 @@ function render()
         renderGate(gate);
     }
     renderBoundary(ship);
-    renderShipOverlay(ship);
+    ship.renderMotionVector();
 
     isShipOffScreen = false;
     if ((ship.loc.x+offsetX)*zoomScale < 0)  renderOffScreenArrow(OffScreenArrowEnum.LEFT);
@@ -432,47 +381,6 @@ function render()
     }
 
     requestAnimationFrameProtected();
-}
-
-function renderShip(ship)
-{
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
-    ctx.scale(zoomScale, zoomScale);
-    ctx.translate(offsetX+ship.loc.x, offsetY+ship.loc.y);
-    ctx.rotate(ship.heading*DEGREES_TO_RAD)
-    ctx.drawImage(shipImage,-shipImage.width/2, -shipImage.height/2);
-}
-
-function renderShipOverlay(ship)
-{
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
-    ctx.beginPath();
-    ctx.lineWidth = 1;
-    let x0 = (offsetX + ship.loc.x) * zoomScale;
-    let y0 = (offsetY + ship.loc.y) * zoomScale;
-    ctx.moveTo(x0, y0);
-    ctx.lineTo(x0 + (maxX - minX) * shipSpeedX * zoomScale, y0 + (maxY - minY) * shipSpeedY * zoomScale);
-    ctx.strokeStyle = colorAzure;
-    ctx.stroke();
-
-    let counterclockwise = false;
-    if (shipAngularSpeed < 0) counterclockwise = true;
-    let radius = 150 * zoomScale;
-    let startAngle = ship.heading * DEGREES_TO_RAD;
-    let endAngle = (ship.heading + shipAngularSpeed * 15) * DEGREES_TO_RAD;
-    ctx.beginPath();
-    ctx.lineWidth = 3;
-    let x1 = x0 + Math.cos(startAngle) * radius / 2;
-    let y1 = y0 + Math.sin(startAngle) * radius / 2;
-    let x2 = x0 + Math.cos(startAngle) * radius;
-    let y2 = y0 + Math.sin(startAngle) * radius;
-    ctx.moveTo(x1, y1);
-    ctx.lineTo(x2, y2);
-    ctx.stroke();
-
-    ctx.beginPath();
-    ctx.arc(x0, y0, radius, startAngle, endAngle, counterclockwise);
-    ctx.stroke();
 }
 
 function renderGate(gate)
@@ -653,7 +561,7 @@ function keyDown(event)
         else
         {
             shipState = shipState | ShipStateEnum.BACK;
-            ship0.respawnMainThrust()
+            thrusts.respawnMainThrust()
         }
     }
     else if ((event.keyCode == KEY_A) && (gameState == GameStateEnum.PLAYING))
@@ -662,7 +570,7 @@ function keyDown(event)
         else if (shipAngularSpeed > -15)
         {
             shipState = shipState | ShipStateEnum.COUNTERCLOCKWISE;
-            ship0.respawnSideThrust();
+            thrusts.respawnSideThrust();
             if (shipState & ShipStateEnum.CLOCKWISE) shipState = shipState - ShipStateEnum.CLOCKWISE;
         }
         else
@@ -678,7 +586,7 @@ function keyDown(event)
         else if (shipAngularSpeed < 15)
         {
             shipState = shipState | ShipStateEnum.CLOCKWISE;
-            ship0.respawnSideThrust();
+            thrusts.respawnSideThrust();
             if (shipState & ShipStateEnum.COUNTERCLOCKWISE) shipState = shipState - ShipStateEnum.COUNTERCLOCKWISE;
         }
         else

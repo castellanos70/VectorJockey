@@ -11,7 +11,7 @@ class Level_1
         minY = -3000;
         maxY = 3000;
 
-        let ship = new Ship(new Coord(0, 0), 0, ShipStateEnum.OFF);
+        let ship = new Ship(new Coord(0, 0), 0, ShipStateEnum.OFF, thrusts);
         shipList.push(ship);
 
         gateList.push(new Gate(500, -200, 80, 600, "#B8C41490"));
