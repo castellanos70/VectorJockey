@@ -49,27 +49,25 @@ class Star
         //if (this.x <= 0 || this.y <= 0) this.x = -1;
         //if (this.x >= canvasWidth-1 || this.y >= canvasHeight-1) this.x = -1;
 
-        //Rotate and shift Sky to place big dipper in center
-        //theta = theta - Math.PI/4;
-
-        //let radius = 2.2*(90.0-declination)/90.0;
-        let radius = (90.0-declination)/90.0;
-        this.x = radius*Math.cos(theta)/SQUARE_ROOT_1HALF;
-        this.y = radius*Math.sin(theta)/SQUARE_ROOT_1HALF;
-        //this.x = radius*Math.cos(theta);
-        //this.y = radius*Math.sin(theta);
-
-        //Rotate and shift Sky to place big dipper in center
-        //this.x += .35;
-        //this.y -= .3;
+        //Shift Sky center between big and little dipper
+        let radius = 2.4*(90.0-declination)/90.0;
+        this.x = radius*Math.cos(theta) + 0.5;
+        this.y = radius*Math.sin(theta) + 0.13;
         this.magnitude = parseFloat(strArray[3]);
-        //if (this.x < 0)
-        //{
-        //    console.info("Star(): theta=" + theta + ", r=" + radius + "   ("+this.x + ",  " + this.y+")");
-        //}
-        if (Math.abs(this.x) > 1 || Math.abs(this.y) > 1)
+
+        if (Math.abs(this.x) > 1.0/ZOOM_MIN || Math.abs(this.y) > 1.0/ZOOM_MIN)
         {
             console.info("ERROR: Star(): theta=" + theta + ", r=" + radius + "   ("+this.x + ",  " + this.y+")");
+            this.x = undefined;
+            return;
+        }
+        let largerDim = Math.max(canvasWidth, canvasHeight);
+        let scale = (largerDim/2)/ZOOM_MIN;
+        let screenX = scale*this.x*ZOOM_MIN + canvasWidth/2;
+        let screenY = scale*this.y*ZOOM_MIN + canvasHeight/2;
+        if (screenX < 0 || screenX >= canvasWidth || screenY < 0 || screenY > canvasHeight)
+        {
+            //console.info("CROP Star(): theta=" + theta + ", r=" + radius + "   ("+this.x + ",  " + this.y+")");
             this.x = undefined;
             return;
         }
@@ -91,8 +89,8 @@ function renderStarsOffCanvas()
         canvasData = new Uint32Array(buf);
         console.info("canvasWidth =" + canvasWidth);
         console.info("canvasHeight =" + canvasHeight);
-        console.info("elements =" + (canvasWidth*canvasHeight*4));
-        console.info("canvasImage.data.length =" + canvasImage.data.length);
+        //console.info("elements =" + (canvasWidth*canvasHeight*4));
+        //console.info("canvasImage.data.length =" + canvasImage.data.length);
     }
 
     for (let i = 0; i < canvasData.length; i++)
@@ -154,17 +152,17 @@ function renderStarsOffCanvas()
             canvasData[idx+1] = color;
             canvasData[idx-canvasWidth] = color;
         }
-        //if (star.name)
-        //{
-        //    canvasData[idx-1] = color;
-        //    canvasData[idx+1] = color;
-        //    canvasData[idx-canvasWidth] = color;
-        //    canvasData[idx+canvasWidth] = color;
-        //    canvasData[1+idx-canvasWidth] = color;
-        //    canvasData[1+idx+canvasWidth] = color;
-        //    canvasData[-1+idx-canvasWidth] = color;
-        //    canvasData[-1+idx+canvasWidth] = color;
-        //}
+        if (star.name)
+        {
+            canvasData[idx-1] = color;
+            canvasData[idx+1] = color;
+            canvasData[idx-canvasWidth] = color;
+            canvasData[idx+canvasWidth] = color;
+            canvasData[1+idx-canvasWidth] = color;
+            canvasData[1+idx+canvasWidth] = color;
+            canvasData[-1+idx-canvasWidth] = color;
+            canvasData[-1+idx+canvasWidth] = color;
+        }
     }
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     canvasImage.data.set(canvasBuf);

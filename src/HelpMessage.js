@@ -214,7 +214,7 @@ function displayCommands(ship)
         ctx.globalAlpha = Math.abs(Math.sin(clockSec));
     }
     ctx.fillStyle = color;
-    ctx.fillText("*spacebar*: Advance Time 10 seconds.", left, top+3*height);
+    ctx.fillText("*spacebar*: Advance Time 1.0 seconds.", left, top+3*height);
     ctx.globalAlpha = 1;
 
     ctx.fillStyle = colorNearWhite;

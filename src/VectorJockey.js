@@ -178,7 +178,7 @@ function init()
     fileObject = new XMLHttpRequest();
 
     fileObject.onreadystatechange = function() {readStars();};
-    fileObject.open("GET", "data/BrightStarCatalog.csv", true);
+    fileObject.open("GET", "data/BrightStarCatalog-Ursa8.csv", true);
     fileObject.setRequestHeader("Content-Type",  "application/x-www-form-urlencoded");
     fileObject.send();
 
@@ -492,15 +492,16 @@ function renderGate(gate)
     }
 
     ctx.setTransform(1, 0, 0, 1, 0, 0);
-    ctx.translate(offsetX*zoomScale, offsetY*zoomScale);
-    ctx.translate(gate.x1*zoomScale, gate.y1*zoomScale);
+    ctx.scale(zoomScale, zoomScale);
+    ctx.translate(offsetX+gate.x1, offsetY+gate.y1);
     ctx.rotate((gate.heading-90)*DEGREES_TO_RAD);
-    ctx.drawImage(gateImage,-gateImage.width/2, -gateImage.height/2);
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.drawImage(gateImage, -gateImage.width / 2, -gateImage.height / 2);
 
-    ctx.translate((offsetX+gate.x2)*zoomScale, (offsetY+gate.y2)*zoomScale);
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.scale(zoomScale, zoomScale);
+    ctx.translate(offsetX+gate.x2, offsetY+gate.y2);
     ctx.rotate((90.0+gate.heading)*DEGREES_TO_RAD);
-    ctx.drawImage(gateImage,-gateImage.width/2, -gateImage.height/2);
+    ctx.drawImage(gateImage, -gateImage.width / 2, -gateImage.height / 2);
 }
 
 function renderBoundary(ship)
@@ -553,9 +554,8 @@ function renderBoundary(ship)
     for (const station of stationList)
     {
         ctx.setTransform(1, 0, 0, 1, 0, 0);
-        let x = station.loc.x * zoomScale
-        let y = station.loc.y * zoomScale
-        ctx.translate(offsetX * zoomScale + x, offsetY * zoomScale + y);
+        ctx.scale(zoomScale, zoomScale);
+        ctx.translate(offsetX+station.loc.x, offsetY+station.loc.y);
         ctx.rotate((3 * (clockSec % 360) + station.heading) * DEGREES_TO_RAD);
         ctx.drawImage(stationImage, -stationImage.width / 2, -stationImage.height / 2);
     }
