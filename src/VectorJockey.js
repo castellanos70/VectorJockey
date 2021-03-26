@@ -178,7 +178,7 @@ function init()
     fileObject = new XMLHttpRequest();
 
     fileObject.onreadystatechange = function() {readStars();};
-    fileObject.open("GET", "data/BrightStarCatalog-Ursa8.csv", true);
+    fileObject.open("GET", "data/SmithsonianStarCatalog-Ursa.csv", true);
     fileObject.setRequestHeader("Content-Type",  "application/x-www-form-urlencoded");
     fileObject.send();
 
@@ -227,7 +227,7 @@ function initLevel(level)
     isShipFullHistory = true;
     shipHistoryAnimationIdx = 0;
 
-    zoomScale = 0.625;
+    zoomScale = 0.64;
     zoomGoal = zoomScale;
     zoomOrg = zoomScale;
     zoomTime = 0;
@@ -784,8 +784,8 @@ function zoom(code)
     {
         zoomTime = clockSec;
         zoomOrg = zoomScale;
-        if (code === '+') zoomGoal = Math.min(ZOOM_MAX, zoomGoal * 1.33333);
-        else if (code === '-') zoomGoal = Math.max(ZOOM_MIN, zoomGoal * 0.75);
+        if (code === '+') zoomGoal = Math.min(ZOOM_MAX, zoomGoal * 1.25);
+        else if (code === '-') zoomGoal = Math.max(ZOOM_MIN, zoomGoal * 0.8);
     }
 
     if (zoomScale === zoomGoal) return;
@@ -800,6 +800,7 @@ function zoom(code)
     renderStarsOffCanvas();
 
     //console.info("offset=" + offsetX + ", "+ offsetY+"),   zoomScale="+zoomScale + "goal="+zoomGoal + "deltaTime="+(clockSec - zoomTime));
+    //console.info("zoomGoal=" + zoomGoal)
 }
 
 
