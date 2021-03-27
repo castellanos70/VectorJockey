@@ -78,7 +78,6 @@ class ThrustSystem
             ctx.translate(dx*zoomScale, dy*zoomScale);
         }
         if (theta) ctx.rotate(theta*DEGREES_TO_RAD);
-        this.particles.forEach(particle=>particle.render())
     }
 }
 
