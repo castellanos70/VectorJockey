@@ -173,11 +173,10 @@ function displayCommands(ship)
     let left = 10;
     let height = 25;
     let color = colorNearWhite;
-    let atRest = false;
     let highlightThrustCommands = false;
-    if ((shipSpeedX === 0) && (shipSpeedY === 0) && (shipAngularSpeed === 0)) atRest = true;
+    let atRest = (shipSpeedX === 0) && (shipSpeedY === 0) && (shipAngularSpeed === 0)
     if (gameState != GameStateEnum.PLAYING) color = colorGray;
-    else if ((shipState === ShipStateEnum.OFF) && atRest && !isShipOffScreen) highlightThrustCommands = true;
+    else if (!ship.isMoving() && !isShipOffScreen) highlightThrustCommands = true;
     ctx.fillStyle = color;
 
     if (highlightThrustCommands)
@@ -207,7 +206,7 @@ function displayCommands(ship)
     if (highlightThrustCommands) ctx.globalAlpha = 1;
 
     color = colorNearWhite;
-    if ((gameState != GameStateEnum.PLAYING) || (atRest && (shipState === ShipStateEnum.OFF))) color = colorGray;
+    if ((gameState != GameStateEnum.PLAYING) || (! ship.isMoving()) ) color = colorGray;
     else if (!isShipOffScreen && gameTime < 25)
     {
         color = colorAzure;
