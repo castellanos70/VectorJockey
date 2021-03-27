@@ -9,26 +9,26 @@ colorList = ["#C32005AA", "#C43006AA","#D63E06AA", "#ED6414AA",
 
 class Particle
 {
-    respawn(height,baseAge)
+    respawn(height, baseAge)
     {
         this.x = 0;
-        this.y = (Math.random()*height)-height/2;
-        let minV = -(1 + 10*0 + 2*(0));
-        let maxV = -(1 + 10*(1) + 2*(height/2-0));
-        this.vx = -(1 + 10*Math.random() + 2*(height/2-Math.abs(this.y)));
-        this.age = Math.floor(baseAge/2+baseAge*Math.random());
-        this.color = colorList[Math.floor(colorList.length*(this.vx-minV)/(maxV-minV))];
+        this.y = (Math.random() * height) - height / 2;
+        let minV = -(1 + 10 * 0 + 2 * (0));
+        let maxV = -(1 + 10 * (1) + 2 * (height / 2 - 0));
+        this.vx = -(1 + 10 * Math.random() + 2 * (height / 2 - Math.abs(this.y)));
+        this.age = Math.floor(baseAge / 2 + baseAge * Math.random());
+        this.color = colorList[Math.floor(colorList.length * (this.vx - minV) / (maxV - minV))];
     }
 
     render(brighter, height, baseAge)
     {
-         this.x += this.vx;
-         this.age--;
-         ctx.fillStyle = this.color;
-         if (brighter) ctx.fillRect(this.x, this.y-1, 3, 3);
-         else ctx.fillRect(this.x, this.y, 1, 1);
-         if (this.age <= 0) this.respawn(height, baseAge);
-   }
+        this.x += this.vx;
+        this.age--;
+        ctx.fillStyle = this.color;
+        if (brighter) ctx.fillRect(this.x, this.y - 1, 3, 3);
+        else ctx.fillRect(this.x, this.y, 1, 1);
+        if (this.age <= 0) this.respawn(height, baseAge);
+    }
 }
 
 class ThrustSystem
@@ -44,16 +44,25 @@ class ThrustSystem
     }
 
 
-    render(ship, dx, dy, theta)
+    render(ship, dx, dy, theta, applyZoom)
     {
         ctx.setTransform(1, 0, 0, 1, 0, 0);
 
-        let x = (offsetX+ship.loc.x)*zoomScale;
-        let y = (offsetY+ship.loc.y)*zoomScale;
-
-        ctx.translate(x, y);
-        ctx.rotate(ship.heading*DEGREES_TO_RAD);
-        ctx.translate(dx*zoomScale, dy*zoomScale);
+        if (applyZoom)
+        {
+            ctx.scale(zoomScale, zoomScale);
+            ctx.translate(offsetX+ship.loc.x, offsetY+ship.loc.y);
+            ctx.rotate(ship.heading*DEGREES_TO_RAD);
+            ctx.translate(dx, dy);
+        }
+        else
+        {
+            let x = (offsetX + ship.loc.x) * zoomScale;
+            let y = (offsetY + ship.loc.y) * zoomScale;
+            ctx.translate(x, y);
+            ctx.rotate(ship.heading*DEGREES_TO_RAD);
+            ctx.translate(dx*zoomScale, dy*zoomScale);
+        }
         if (theta) ctx.rotate(theta*DEGREES_TO_RAD);
 
         let m = Math.floor(0.5*this.particles.length);

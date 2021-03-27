@@ -4,6 +4,7 @@ var pendingFrameRequest = false;
 
 var canvasWidth, canvasHeight;
 var shipImage = new Image();
+var shipGhostImage = new Image();
 var stationImage = new Image();
 var gateImage = new Image();
 var fileObject;
@@ -98,6 +99,7 @@ function init()
     canvasData = undefined;
 
     shipImage.src = document.getElementById("shipImage").src;
+    shipGhostImage.src = document.getElementById("shipGhostImage").src;
     stationImage.src = document.getElementById("stationImage").src;
     gateImage.src = document.getElementById("gateImage").src;
 
@@ -325,7 +327,8 @@ function render()
     {
         let startIdx = ((gameState === GameStateEnum.PLAYING) &&(shipList.length > 2500)) ?
            shipList.length - 1000 : 0;
-        shipList.slice(startIdx).forEach(ship=>ship.render())
+        shipList.slice(startIdx).forEach(ship=>ship.render(shipGhostImage))
+        ship.render(shipImage)
     }
     else
     {
@@ -352,12 +355,12 @@ function render()
             {
                 animationShip.heading = (tmpShip1.heading * (0.1 - deltaSec) + tmpShip2.heading * deltaSec) / 0.1;
             }
-            animationShip.render();
-            animationShip.renderThrust(ShipStateEnum);
+            animationShip.render(shipGhostImage);
+            animationShip.renderThrust(ShipStateEnum, true);
         }
-        ship.render();
+        ship.render(shipImage, shipImage);
     }
-    ship.renderThrust(ShipStateEnum);
+    ship.renderThrust(ShipStateEnum, false);
 
     for (const gate of gateList)
     {

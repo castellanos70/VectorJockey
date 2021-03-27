@@ -28,7 +28,7 @@ function starRGB(r,g,b)
 //   zoomGoal=1
 function getStarBrightness(magnitude, zoomScale)
 {
-    if (zoomScale < 0.2 && magnitude > 8.0) return undefined;
+    let expBase = 1.7;
 
     //Maximum brightness = 5.0: spread onto 5 pixels
     if (magnitude < 2.3) return 5.0;
@@ -37,7 +37,7 @@ function getStarBrightness(magnitude, zoomScale)
         if (magnitude < 3.0) return 3.0;
         if (magnitude < 3.5) return 2.0;
         if (magnitude < 6.0) return 1.0;
-        return (2**6.0)/(2**magnitude);
+        return (expBase**6.0)/(expBase**magnitude);
     }
     if (zoomScale < 0.15)
     {
@@ -45,7 +45,7 @@ function getStarBrightness(magnitude, zoomScale)
         if (magnitude < 4.0) return 3.0;
         if (magnitude < 5.0) return 2.0;
         if (magnitude < 6.5) return 1.0;
-        return (2**6.5)/(2**magnitude);
+        return (expBase**6.5)/(expBase**magnitude);
     }
     if (zoomScale < 0.2)
     {
@@ -53,7 +53,7 @@ function getStarBrightness(magnitude, zoomScale)
         if (magnitude < 4.5) return 3.0;
         if (magnitude < 5.0) return 2.0;
         if (magnitude < 7.0) return 1.0;
-        return (2**7.0)/(2**magnitude);
+        return (expBase**7.0)/(expBase**magnitude);
     }
     if (zoomScale < 0.25)
     {
@@ -61,37 +61,61 @@ function getStarBrightness(magnitude, zoomScale)
         if (magnitude < 4.5) return 3.0;
         if (magnitude < 5.5) return 2.0;
         if (magnitude < 8.0) return 1.0;
-        return (2**8.0)/(2**magnitude);
+        return (expBase**8.0)/(expBase**magnitude);
     }
-    if (zoomScale < 0.4)
+    if (zoomScale < 0.3)
+    {
+        if (magnitude < 3.7) return 5.0;
+        if (magnitude < 4.5) return 3.0;
+        if (magnitude < 5.7) return 2.0;
+        if (magnitude < 8.5) return 1.0;
+        return (expBase**8.5)/(expBase**magnitude);
+    }
+    if (zoomScale < 0.38)
+    {
+        if (magnitude < 3.9) return 5.0;
+        if (magnitude < 4.6) return 3.0;
+        if (magnitude < 5.9) return 2.0;
+        if (magnitude < 8.7) return 1.0;
+        return (expBase**8.7)/(expBase**magnitude);
+    }
+    if (zoomScale < 0.45)
     {
         if (magnitude < 4.0) return 5.0;
-        if (magnitude < 4.5) return 3.0;
-        if (magnitude < 6.0) return 2.0;
+        if (magnitude < 4.7) return 3.0;
+        if (magnitude < 6.5) return 2.0;
         if (magnitude < 9.0) return 1.0;
-        return (2**9.0)/(2**magnitude);
+        return (expBase**9.0)/(expBase**magnitude);
     }
     if (zoomScale < 0.6)
     {
-        if (magnitude < 4.2) return 5.0;
-        if (magnitude < 4.7) return 3.0;
+        if (magnitude < 4.1) return 5.0;
+        if (magnitude < 5.0) return 3.0;
         if (magnitude < 7.0) return 2.0;
-        if (magnitude < 9.5) return 1.0;
-        return (2**9.5)/(2**magnitude);
+        if (magnitude < 9.4) return 1.0;
+        return (expBase**9.4)/(expBase**magnitude);
     }
-    if (zoomScale < 0.75)
+    if (zoomScale < 0.73)
+    {
+        if (magnitude < 4.2) return 5.0;
+        if (magnitude < 5.5) return 3.0;
+        if (magnitude < 7.5) return 2.0;
+        if (magnitude < 9.6) return 1.0;
+        return (expBase**9.6)/(expBase**magnitude);
+    }
+    if (zoomScale < 0.85)
     {
         if (magnitude < 4.5) return 5.0;
         if (magnitude < 6.0) return 3.0;
         if (magnitude < 8.0) return 2.0;
         if (magnitude < 10.0) return 1.0;
-        return (2**10.0)/(2**magnitude);
+        return (expBase**10.0)/(expBase**magnitude);
     }
     if (magnitude < 6.0) return 5.0;
     if (magnitude < 7.0) return 3.0;
     if (magnitude < 9.0) return 2.0;
     if (magnitude < 11.0) return 1.0;
-    return (2**11.0)/(2**magnitude);
+    return (expBase**11.0)/(expBase**magnitude);
 }
 
 //Should be static class method, but Google Closure Compiler does not support

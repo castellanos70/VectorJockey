@@ -14,13 +14,13 @@ class Ship
        return this.loc.cross(stations) > 0 ? stations : null
     }
 
-    render()
+    render(sprite)
     {
        ctx.setTransform(1, 0, 0, 1, 0, 0);
        ctx.scale(zoomScale, zoomScale);
        ctx.translate(offsetX+this.loc.x, offsetY+this.loc.y);
        ctx.rotate(this.heading*DEGREES_TO_RAD)
-       ctx.drawImage(shipImage,-shipImage.width/2, -shipImage.height/2);
+       ctx.drawImage(sprite,-shipImage.width/2, -shipImage.height/2);
     }
 
     renderMotionVector()
@@ -55,22 +55,22 @@ class Ship
        ctx.stroke();
     }
 
-    renderThrust(ShipStateEnum)
+    renderThrust(ShipStateEnum, applyZoom)
     {
        if (this.state & ShipStateEnum.BACK)
        {
-          this.thrust.thrustSystemMain.render(this, -(shipImage.width-4)/2, 0);
+          this.thrust.thrustSystemMain.render(this, -(shipImage.width-4)/2, 0, 0, applyZoom);
        }
 
        if (this.state & ShipStateEnum.CLOCKWISE)
        {
-          this.thrust.thrustSystemCWB.render(this, -28, 30, -90);
-          this.thrust.thrustSystemCWF.render(this, 39, -23, 90);
+          this.thrust.thrustSystemCWB.render(this, -28, 30, -90, applyZoom);
+          this.thrust.thrustSystemCWF.render(this, 39, -23, 90, applyZoom);
        }
        if (this.state & ShipStateEnum.COUNTERCLOCKWISE)
        {
-          this.thrust.thrustSystemCWB.render(this, -27, -30, 90);
-          this.thrust.thrustSystemCWF.render(this, 39, 23, -90);
+          this.thrust.thrustSystemCWB.render(this, -27, -30, 90, applyZoom);
+          this.thrust.thrustSystemCWF.render(this, 39, 23, -90, applyZoom);
        }
     }
 }
