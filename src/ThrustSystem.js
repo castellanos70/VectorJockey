@@ -9,7 +9,11 @@ colorList = ["#C32005AA", "#C43006AA","#D63E06AA", "#ED6414AA",
 
 class Particle
 {
-    respawn(height, baseAge)
+    constructor(pixelSize) {
+        this.pixelSize = pixelSize
+    }
+
+    respawn(height,baseAge)
     {
         this.x = 0;
         this.y = (Math.random() * height) - height / 2;
@@ -20,7 +24,7 @@ class Particle
         this.color = colorList[Math.floor(colorList.length * (this.vx - minV) / (maxV - minV))];
     }
 
-    render(brighter, height, baseAge)
+    render(height, baseAge)
     {
         this.x += this.vx;
         this.age--;
@@ -35,11 +39,11 @@ class ThrustSystem
 {
     constructor(particleCount, height, baseAge)
     {
-        let n = particleCount;
+        let n = Math.floor(particleCount/2);
         this.height = height;
         this.baseAge = baseAge;
-        this.particles = new Array(n)
-        this.particles.fill(new Particle())
+        this.particles = (new Array(n).fill(new Particle(3)))
+                  .concat(new Array(n).fill(new Particle(1)))
         this.particles.forEach(particle=>particle.respawn(this.height, this.baseAge))
     }
 
@@ -64,10 +68,7 @@ class ThrustSystem
             ctx.translate(dx*zoomScale, dy*zoomScale);
         }
         if (theta) ctx.rotate(theta*DEGREES_TO_RAD);
-
-        let m = Math.floor(0.5*this.particles.length);
-        this.particles.slice(0,m).forEach(particle=>particle.render(true,this.height,this.baseAge))
-        this.particles.slice(m).forEach(particle=>particle.render(false,this.height,this.baseAge))
+        this.particles.forEach(particle=>particle.render(this.height,this.baseAge))
     }
 }
 
