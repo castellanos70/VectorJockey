@@ -52,11 +52,11 @@ class Level_1
         }
     }
 
-    getNextHelpMsg()
+    getNextHelpMsg(ship)
     {
-        if (gameTime === 1 && shipSpeedX === 1)
+        if (gameTime === 1 && ship && ship.speedX === 1)
             return "You\'re Moving!!!        Notice Time = 1.        Notice Linear Speed = 10 meters/second.";
-        if (gameTime === 2 && shipSpeedX === 2)
+        if (gameTime === 2 && ship && ship.speedX === 2)
             return "You\'re advanced time twice.     Notice Time = 2.        Notice Linear Speed = 20 meters/second.";
 
         if (gameState === GameStateEnum.WIN)
@@ -80,7 +80,7 @@ class Level_1
             case 2: case 3: case 4:
                 return "Goal: Pilot ship through all of 5 gates in less time-steps than any competitor.";
             case 5: case 6: case 7:
-                if (shipSpeedX !== 0) return "Long thin Azure line shows the path your ship will take if time is advanced with thruster off.";
+                if (ship && ship.speedX !== 0) return "Long thin Azure line shows the path your ship will take if time is advanced with thruster off.";
             case 8: return "                                                                ";
             default:
                 let r = Math.random();

@@ -63,7 +63,7 @@ function initHelp()
 }
 
 
-function displayMessage()
+function displayMessage(ship)
 {
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     //ctx.font = infoFontSize + " RobotoMono";
@@ -74,7 +74,7 @@ function displayMessage()
         if (infoSec === 0) infoSec = clockSec;
         else if (clockSec - infoSec > 5)
         {
-            infoMsg = currentLevel.getNextHelpMsg();
+            infoMsg = currentLevel.getNextHelpMsg(ship);
             infoSec = 0;
         }
     }
@@ -146,7 +146,7 @@ function displayStatus(ship)
     ctx.fillStyle = colorNearWhite;
     ctx.font = "18px SourceSansPro-Light";
     ctx.setTransform(1, 0, 0, 1, 0, 0);
-    let speed = Math.sqrt(shipSpeedX * shipSpeedX + shipSpeedY * shipSpeedY) * 10.0;
+    let speed = Math.sqrt(ship.speedX * ship.speedX + ship.speedY * ship.speedY) * 10.0;
     let tmpStatus =
         [
             "Gates: " + String(gatesCompleted),
@@ -174,7 +174,7 @@ function displayCommands(ship)
     let height = 25;
     let color = colorNearWhite;
     let highlightThrustCommands = false;
-    let atRest = (shipSpeedX === 0) && (shipSpeedY === 0) && (shipAngularSpeed === 0)
+    let atRest = (ship.speedX === 0) && (ship.speedY === 0) && (ship.angularSpeed === 0)
     if (gameState != GameStateEnum.PLAYING) color = colorGray;
     else if (!ship.isMoving() && !isShipOffScreen) highlightThrustCommands = true;
     ctx.fillStyle = color;

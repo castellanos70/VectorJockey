@@ -234,7 +234,7 @@ function initLevel(level)
     }
 
     currentLevel.init();
-    infoMsg = currentLevel.getNextHelpMsg()
+    infoMsg = currentLevel.getNextHelpMsg(null)
     infoSec = 0;
 }
 
@@ -275,12 +275,11 @@ function render()
         movePending = false;
         gameTime++;
         if (gameTime === 1000) isShipFullHistory = false;
-        let ship0 = ship;
-        ship0.computeNewPos()
-        // DDD
-        if (ship0.heading <= -180) ship0.heading = 360 + ship0.heading
-        else if (ship0.heading > 180) ship0.heading = ship0.heading - 360
-        ship = ship0.clone()
+        if (ship.heading <= -180) ship.heading = 360 + ship.heading
+        else if (ship.heading > 180) ship.heading = ship.heading - 360
+        let ship0 = ship
+        ship = ship.clone()
+        ship.computeNewPos()
         shipList.push(ship);
         updateGates(ship0, ship);
         checkBoundary(ship);
@@ -344,7 +343,7 @@ function render()
     {
         displayStatus(ship);
         if (isCommandVisible) displayCommands(ship);
-        displayMessage();
+        displayMessage(ship);
         if (isDisplayTitle) displayTitle();
     }
 
