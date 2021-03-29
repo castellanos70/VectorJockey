@@ -10,7 +10,7 @@ class Level_2
         maxX = 5000;
         minY = -5000;
         maxY = 5000;
-        let ship = new Ship(new Coord(0, 0), 0, ShipStateEnum.OFF, thrusts);
+        let ship = new Ship(new Coord(0, 0), 0, false, thrusts);
         shipList.push(ship);
 
         gateList.push(new Gate(0, -250, 0, 600, "#00900090"));
