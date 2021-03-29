@@ -1,5 +1,7 @@
 const Spin = {CLOCKWISE:1, COUNTERCLOCKWISE:-1, NOSPIN:0}
 
+function mod (x,y) { return (x%y+y)%y }
+
 class Ship
 {
     constructor(loc, heading, forwardThrust, thrust)
@@ -74,25 +76,9 @@ class Ship
 
     getAngleOneDegreeToGoal(angle, goal)
     {
-
-       if (Math.abs(angle - goal) <= 1.1) return goal;
-
-       if (goal >= 0)
-       {
-          if (angle > goal) return angle - 1;
-          if (goal - angle <= 180) return angle + 1;
-          angle--;
-          if (angle <= -179.5) return 180;
-          return angle;
-       }
-
-       if (angle < goal) return angle + 1;
-       if (angle - goal <= 180) return angle - 1;
-       angle++;
-       if (angle > 180) return -179;
-       return angle;
+       if (Math.abs(angle - goal) < 1.1) return goal 
+       return angle + (mod(angle-goal,360) < 180 ? -1 : 1)
     }
-
 
     // return true for back inside of beams
     tractor()
@@ -101,7 +87,9 @@ class Ship
         this.speedY *= 0.95;
         this.angularSpeed *= 0.9;
 
+console.info (this.heading, tractorBeamHeadingGoal)
         this.heading = this.getAngleOneDegreeToGoal(this.heading, tractorBeamHeadingGoal);
+console.info ("-->",this.heading)
 
         if (Math.abs(this.speedX) < 1) this.speedX = 0;
         if (Math.abs(this.speedY) < 1) this.speedY = 0;

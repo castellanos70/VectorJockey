@@ -690,9 +690,7 @@ function checkBoundary(ship)
          infoMsg = "Tractor Beam Engaged. Thrusters temporarily disabled. Enjoy the ride.";
          infoSec = 0;
          tractorBeamNodes = stations[0]
-         tractorBeamHeadingGoal = Math.round(Math.atan2(-ship.loc.y, -ship.loc.x) / DEGREES_TO_RAD);
-         if (tractorBeamHeadingGoal > 180) tractorBeamHeadingGoal = tractorBeamHeadingGoal - 360;
-         if (tractorBeamHeadingGoal === -180) tractorBeamHeadingGoal = 180;
+         tractorBeamHeadingGoal = Math.atan2(-ship.loc.y, -ship.loc.x) / DEGREES_TO_RAD;
          return;
     }
 }
