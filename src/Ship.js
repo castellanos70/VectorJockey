@@ -77,7 +77,7 @@ class Ship
     getAngleOneDegreeToGoal(angle, goal)
     {
        if (Math.abs(angle - goal) < 1.1) return goal 
-       return angle + (mod(angle-goal,360) < 180 ? -1 : 1)
+       return angle + Math.sign(mod(angle-goal,360) - 180)
     }
 
     // return true for back inside of beams
@@ -87,9 +87,7 @@ class Ship
         this.speedY *= 0.95;
         this.angularSpeed *= 0.9;
 
-console.info (this.heading, tractorBeamHeadingGoal)
         this.heading = this.getAngleOneDegreeToGoal(this.heading, tractorBeamHeadingGoal);
-console.info ("-->",this.heading)
 
         if (Math.abs(this.speedX) < 1) this.speedX = 0;
         if (Math.abs(this.speedY) < 1) this.speedY = 0;
