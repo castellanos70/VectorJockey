@@ -96,6 +96,7 @@ function init()
     document.documentElement.style.overflow = 'hidden';  // firefox, chrome
     canvas = document.getElementById("mainCanvas");
     ctx = canvas.getContext("2d");
+    ctx.drawLine = function (fromLoc, toLoc) {ctx.moveTo(fromLoc.x, fromLoc.y); ctx.lineTo(toLoc.x,toLoc.y) }
     canvasData = undefined;
 
     shipImage.src = document.getElementById("shipImage").src;
@@ -451,20 +452,11 @@ function renderBoundary(ship)
         for (let thickness = 1; thickness <= 3; thickness += 2)
         {
             ctx.lineWidth = thickness;
-            for (let k = 0; k < 6; k++)
-            {
-                let x = stationList[k % 5].loc.x * zoomScale;
-                let y = stationList[k % 5].loc.y * zoomScale;
-                //console.info("vertex["+String(k)+"]: (" + String(x)+ ", " + String(y) +")");
-                if (k === 0) ctx.moveTo(x, y);
-                else
-                {
-                    ctx.lineTo(x, y);
-                }
-                //ctx.fillStyle = "white";
-                //ctx.fillText(String(k), x, y);
-            }
-
+            boundaryList.forEach(
+               stations=>ctx.drawLine (
+                  stations[0].loc.scale(zoomScale),
+                  stations[1].loc.scale(zoomScale)
+               ) )
             ctx.stroke();
         }
     }
