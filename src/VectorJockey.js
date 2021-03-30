@@ -276,8 +276,6 @@ function render()
         movePending = false;
         gameTime++;
         if (gameTime === 1000) isShipFullHistory = false;
-        if (ship.heading <= -180) ship.heading = 360 + ship.heading
-        else if (ship.heading > 180) ship.heading = ship.heading - 360
         let ship0 = ship
         ship = ship.clone()
         ship.computeNewPos()
@@ -315,7 +313,7 @@ function render()
             animationShip.state = tmpShip1.state;
             animationShip.loc.x = (tmpShip1.loc.x * (0.1 - deltaSec) + tmpShip2.loc.x * deltaSec) / 0.1;
             animationShip.loc.y = (tmpShip1.loc.y * (0.1 - deltaSec) + tmpShip2.loc.y * deltaSec) / 0.1;
-            if (Math.abs(tmpShip1.heading - tmpShip2.heading) > 90) animationShip.heading = tmpShip1.heading;
+            if (mod(Math.abs(tmpShip1.heading - tmpShip2.heading), 360) > 90) animationShip.heading = tmpShip1.heading;
             else
             {
                 animationShip.heading = (tmpShip1.heading * (0.1 - deltaSec) + tmpShip2.heading * deltaSec) / 0.1;

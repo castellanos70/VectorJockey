@@ -46,7 +46,7 @@ class Ship
 
     isMoving ()
     {
-       return this.speedX>0 || this.speedY>0 || this.angularSpeed>0 
+       return Math.abs(this.speedX)>0 || Math.abs(this.speedY)>0 || Math.abs(this.angularSpeed)>0 
          || this.forwardThrust || this.spinThrust != Spin.NOSPIN
     }
 
@@ -76,7 +76,7 @@ class Ship
 
     getAngleOneDegreeToGoal(angle, goal)
     {
-       if (Math.abs(angle - goal) < 1.1) return goal 
+       if (mod(Math.abs(angle - goal), 360) < 1.1) return goal 
        return angle + Math.sign(mod(angle-goal,360) - 180)
     }
 
