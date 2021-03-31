@@ -6,16 +6,14 @@ class Gate
         this.LOCK_DISTANCE = distance/4.0;
         this.x = x;
         this.y = y;
-        this.heading = heading;
         this.distance = distance;
         this.state = GateStateEnum.ON;
         this.color = color;
-        let dx = Math.round(0.5*distance*Math.cos(heading*DEGREES_TO_RAD));
-        let dy = Math.round(0.5*distance*Math.sin(heading*DEGREES_TO_RAD));
-        this.x1 = x-dx;
-        this.y1 = y-dy;
-        this.x2 = x+dx;
-        this.y2 = y+dy;
+        let rheading = heading * DEGREES_TO_RAD
+        let dx = Math.round(0.5*distance*Math.cos(rheading));
+        let dy = Math.round(0.5*distance*Math.sin(rheading));
+        this.left = new Coord(x-dx, y-dy, rheading )
+        this.right = new Coord(x+dx, y+dy, rheading + Math.PI)
 
         this.slope = dy/dx;
         this.yIntercept = y - this.slope*x;
@@ -28,7 +26,7 @@ class Gate
         this.goal = new Array(this.nodeCount);
         for (let i = 0; i < this.nodeCount; i++)
         {
-            this.nodeX[i] = randomInt(this.x2-this.x1) + this.x1;
+            this.nodeX[i] = randomInt(this.right.x - this.left.x) + this.left.x;
             this.nodeY[i] = this.slope * this.nodeX[i] + this.yIntercept;
             this.nodeVx[i] = this.getRandomSpeed();
             this.nodeVy[i] = this.getRandomSpeed();
@@ -59,10 +57,10 @@ class Gate
         {
             for (let i=0; i<this.nodeCount; i++)
             {
-                let diffToX1 = this.x1 - this.nodeX[i];
-                let diffToX2 = this.x2 - this.nodeX[i];
-                let diffToY1 = this.y1 - this.nodeY[i];
-                let diffToY2 = this.y2 - this.nodeY[i];
+                let diffToX1 = this.left.x - this.nodeX[i];
+                let diffToX2 = this.right.x - this.nodeX[i];
+                let diffToY1 = this.left.y - this.nodeY[i];
+                let diffToY2 = this.right.y - this.nodeY[i];
                 let distTo1 = Math.sqrt(diffToX1 * diffToX1 + diffToY1 * diffToY1);
                 let distTo2 = Math.sqrt(diffToX2 * diffToX2 + diffToY2 * diffToY2);
                 if (distTo1 < distTo2)
@@ -97,28 +95,28 @@ class Gate
 
                     if (this.goal[i] === 1)
                     {
-                        let dx = Math.abs(this.x1 - this.nodeX[i]);
-                        let dy = Math.abs(this.y1 - this.nodeY[i]);
+                        let dx = Math.abs(this.left.x - this.nodeX[i]);
+                        let dy = Math.abs(this.left.y - this.nodeY[i]);
                         if (dx < 20 && dy < 20) this.goal[i] = undefined;
                         else
                         {
                             done = false;
                             ctx.beginPath();
-                            ctx.moveTo(this.x1, this.y1);
+                            ctx.moveTo(this.left.x, this.left.y);
                             ctx.lineTo(this.nodeX[i], this.nodeY[i]);
                             ctx.stroke();
                         }
                     }
                     else if (this.goal[i] === 2)
                     {
-                        let dx = Math.abs(this.x2 - this.nodeX[i]);
-                        let dy = Math.abs(this.y2 - this.nodeY[i]);
+                        let dx = Math.abs(this.right.x - this.nodeX[i]);
+                        let dy = Math.abs(this.right.y - this.nodeY[i]);
                         if (dx < 20 && dy < 20) this.goal[i] = undefined;
                         else
                         {
                             done = false;
                             ctx.beginPath();
-                            ctx.moveTo(this.x2, this.y2);
+                            ctx.moveTo(this.right.x, this.right.y);
                             ctx.lineTo(this.nodeX[i], this.nodeY[i]);
                             ctx.stroke();
                         }
@@ -143,10 +141,10 @@ class Gate
             this.nodeX[i] += this.nodeVx[i];
             this.nodeY[i] += this.nodeVy[i];
 
-            let diffToX1 = this.x1-this.nodeX[i];
-            let diffToX2 = this.x2-this.nodeX[i];
-            let diffToY1 = this.y1-this.nodeY[i];
-            let diffToY2 = this.y2-this.nodeY[i];
+            let diffToX1 = this.left.x-this.nodeX[i];
+            let diffToX2 = this.right.x-this.nodeX[i];
+            let diffToY1 = this.left.y-this.nodeY[i];
+            let diffToY2 = this.right.y-this.nodeY[i];
 
             let distTo1 = Math.sqrt(diffToX1*diffToX1 + diffToY1*diffToY1);
             let distTo2 = Math.sqrt(diffToX2*diffToX2 + diffToY2*diffToY2);
@@ -171,11 +169,11 @@ class Gate
                     {
                         //shoot at gate 2
                         this.goal[i] = 2;
-                        this.nodeX[i] = this.x1;
-                        this.nodeY[i] = this.y1;
+                        this.nodeX[i] = this.left.x;
+                        this.nodeY[i] = this.left.y;
                         let r = 2*this.getRandomSpeed(1)
-                        this.nodeVx[i] = (1.5+r)*(this.x2-this.x1)/this.distance;
-                        this.nodeVy[i] = (1.5+r)*(this.y2-this.y1)/this.distance;
+                        this.nodeVx[i] = (1.5+r)*(this.right.x-this.left.x)/this.distance;
+                        this.nodeVy[i] = (1.5+r)*(this.right.y-this.left.y)/this.distance;
                     }
                 }
                 else if (this.goal[i] === 2) {}
@@ -187,7 +185,7 @@ class Gate
                 }
                 ctx.beginPath();
                 ctx.moveTo(this.nodeX[i], this.nodeY[i]);
-                ctx.lineTo(this.x1, this.y1);
+                ctx.lineTo(this.left.x, this.left.y);
                 ctx.stroke();
             }
 
@@ -199,11 +197,11 @@ class Gate
                     {
                         //shoot at gate 1
                         this.goal[i] = 1;
-                        this.nodeX[i] = this.x2;
-                        this.nodeY[i] = this.y2;
+                        this.nodeX[i] = this.right.x;
+                        this.nodeY[i] = this.right.y;
                         let r = 2*this.getRandomSpeed(1)
-                        this.nodeVx[i] = (1.5+r)*(this.x1-this.x2)/this.distance;
-                        this.nodeVy[i] = (1.5+r)*(this.y1-this.y2)/this.distance;
+                        this.nodeVx[i] = (1.5+r)*(this.left.x-this.right.x)/this.distance;
+                        this.nodeVy[i] = (1.5+r)*(this.left.y-this.right.y)/this.distance;
                     }
                 }
                 else if (this.goal[i] === 1) {}
@@ -215,13 +213,13 @@ class Gate
                 }
                 ctx.beginPath();
                 ctx.moveTo(this.nodeX[i], this.nodeY[i]);
-                ctx.lineTo(this.x2, this.y2);
+                ctx.lineTo(this.right.x, this.right.y);
                 ctx.stroke();
             }
             else
             {
-                let a = (this.x2 - this.x1) * (this.y1 - this.nodeY[i]);
-                let b = (this.y2 - this.y1) * (this.x1 - this.nodeX[i]);
+                let a = (this.right.x - this.left.x) * (this.left.y - this.nodeY[i]);
+                let b = (this.right.y - this.left.y) * (this.left.x - this.nodeX[i]);
                 let distToLine = Math.abs(a - b) / this.distance;
                 if (distToLine > this.MAX_DISTANCE_FROM_LINE)
                 {
@@ -270,9 +268,9 @@ class Gate
             ctx.stroke();
         }
         ctx.beginPath();
-        ctx.moveTo(this.x1, this.y1);
+        ctx.moveTo(this.left.x, this.left.y);
         ctx.lineTo(this.nodeX[nearestTo_1], this.nodeY[nearestTo_1]);
-        ctx.moveTo(this.x2, this.y2);
+        ctx.moveTo(this.right.x, this.right.y);
         ctx.lineTo(this.nodeX[nearestTo_2], this.nodeY[nearestTo_2]);
         ctx.stroke();
     }

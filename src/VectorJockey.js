@@ -97,7 +97,7 @@ function init()
     {
        this.setTransform(1, 0, 0, 1, 0, 0);
        this.scale(zoomScale, zoomScale); // zoomScale is global
-       this.translate(offsetX+anchor.loc.x, offsetY+anchor.loc.y); //offset is global
+       this.translate(offsetX+anchor.x, offsetY+anchor.y); //offset is global
        ctx.rotate(mod(anchor.heading + rotationInc, 2 * Math.PI)) 
        ctx.drawImage(sprite,-sprite.width/2, -sprite.height/2);
     }
@@ -115,7 +115,7 @@ function init()
     canvasImage = ctx.getImageData(0, 0, canvasWidth, canvasHeight);
 
     thrusts = new ThrustSystems()
-    animationShip = new Ship(new Coord(0,0),0, false, thrusts);
+    animationShip = new Ship(new Coord(0,0), false, thrusts);
 
     let y = canvasHeight;
     gradientArrowBot = ctx.createLinearGradient(0,y - arrowLength, 0, y-arrowOffset[0]);
@@ -322,10 +322,10 @@ function render()
             animationShip.state = tmpShip1.state;
             animationShip.loc.x = (tmpShip1.loc.x * (0.1 - deltaSec) + tmpShip2.loc.x * deltaSec) / 0.1;
             animationShip.loc.y = (tmpShip1.loc.y * (0.1 - deltaSec) + tmpShip2.loc.y * deltaSec) / 0.1;
-            if (mod(Math.abs(tmpShip1.heading - tmpShip2.heading), 360) > 90) animationShip.heading = tmpShip1.heading;
+            if (mod(Math.abs(tmpShip1.loc.heading - tmpShip2.loc.heading), 360) > 90) animationShip.loc.heading = tmpShip1.loc.heading;
             else
             {
-                animationShip.heading = (tmpShip1.heading * (0.1 - deltaSec) + tmpShip2.heading * deltaSec) / 0.1;
+                animationShip.loc.heading = (tmpShip1.loc.heading * (0.1 - deltaSec) + tmpShip2.loc.heading * deltaSec) / 0.1;
             }
             animationShip.render(shipGhostImage);
             animationShip.renderThrust(true);
@@ -379,17 +379,8 @@ function renderGate(gate)
             ctx.stroke();
         }
     }
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
-    ctx.scale(zoomScale, zoomScale);
-    ctx.translate(offsetX+gate.x1, offsetY+gate.y1);
-    ctx.rotate((gate.heading-90)*DEGREES_TO_RAD);
-    ctx.drawImage(gateImage, -gateImage.width / 2, -gateImage.height / 2);
-
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
-    ctx.scale(zoomScale, zoomScale);
-    ctx.translate(offsetX+gate.x2, offsetY+gate.y2);
-    ctx.rotate((90.0+gate.heading)*DEGREES_TO_RAD);
-    ctx.drawImage(gateImage, -gateImage.width / 2, -gateImage.height / 2);
+    ctx.renderSprite(gate.left, gateImage, -Math.PI/2)
+    ctx.renderSprite(gate.right, gateImage, Math.PI/2)
 }
 
 function renderBoundary(ship)
@@ -430,7 +421,8 @@ function renderBoundary(ship)
             ctx.stroke();
         }
     }
-    stationList.forEach(station => ctx.renderSprite(station, stationImage, station.speed * clockSec))
+    stationList.forEach(station => 
+      ctx.renderSprite(station.loc, stationImage, station.speed * clockSec))
 }
 
 

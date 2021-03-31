@@ -1,6 +1,7 @@
+// as needed for ctx.renderSprite
 class Coord
 {
-   constructor(theta,y) {
+   constructor(theta,y, heading=0) {
       if (y === undefined) {
          this.x = Math.cos(theta)
          this.y = Math.sin(theta)
@@ -10,6 +11,7 @@ class Coord
          this.x = theta
          this.y = y
       }
+      this.heading = heading 
    }
    // cross product, positive if edge[0]->this is 'right' of edge in a clockwise scan
    cross (edge) {
@@ -19,7 +21,7 @@ class Coord
    }
    scale(val)
    {
-      return new Coord (this.x*val,this.y*val)
+      return new Coord (this.x*val,this.y*val, this.heading)
    }
 }
 
@@ -31,6 +33,6 @@ class Station
     constructor(loc)
     {
         this.loc = loc;
-        this.heading = Math.random() * Math.PI;
+        this.loc.heading = Math.random() * Math.PI;
     }
 }

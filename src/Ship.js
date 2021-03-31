@@ -4,10 +4,9 @@ function mod (x,y) { return (x%y+y)%y }
 
 class Ship
 {
-    constructor(loc, heading, forwardThrust, thrust)
+    constructor(loc, forwardThrust, thrust)
     {
         this.loc = loc;
-        this.heading = heading;
         this.forwardThrust = forwardThrust // bool
         this.spinThrust= Spin.NOSPIN
         this.angularSpeed = 0 // in radians per pulse
@@ -18,8 +17,8 @@ class Ship
     }
 
     clone() {
-       let ship = new Ship(new Coord(this.loc.x,this.loc.y),
-                           this.heading,this.forwardThrust, this.thrust)
+       let ship = new Ship(new Coord(this.loc.x,this.loc.y, this.loc.heading),
+                           this.forwardThrust, this.thrust)
        ship.speedX = this.speedX
        ship.speedY = this.speedY
        ship.angularSpeed = this.angularSpeed
@@ -53,8 +52,8 @@ class Ship
     computeNewSpeed() 
     {
        if (this.forwardThrust) {
-          this.speedX += Math.cos(this.heading)
-          this.speedY += Math.sin(this.heading)
+          this.speedX += Math.cos(this.loc.heading)
+          this.speedY += Math.sin(this.loc.heading)
        }
        this.angularSpeed = Math.min(DEG_15,Math.max(-DEG_15,this.angularSpeed + DEG_15/3 * this.spinThrust))
     }
@@ -66,7 +65,7 @@ class Ship
        if (Math.abs(this.angularSpeed) < 4*DEGREES_TO_RAD) this.angularSpeed = 0;
        this.loc.x = this.loc.x + this.speedX;
        this.loc.y = this.loc.y + this.speedY;
-       this.heading = this.heading + this.angularSpeed; 
+       this.loc.heading = this.loc.heading + this.angularSpeed; 
     }
 
     isOutside (stations)
@@ -87,22 +86,22 @@ class Ship
         this.speedY *= 0.95;
         this.angularSpeed *= 0.9;
 
-        this.heading = this.getAngleOneDegreeToGoal(this.heading, tractorBeamHeadingGoal);
+        this.loc.heading = this.getAngleOneDegreeToGoal(this.loc.heading, tractorBeamHeadingGoal);
 
         if (Math.abs(this.speedX) < 1) this.speedX = 0;
         if (Math.abs(this.speedY) < 1) this.speedY = 0;
         if (Math.abs(this.angularSpeed) < 1*DEGREES_TO_RAD) this.angularSpeed = 0;
 
-        if ((this.speedX !== 0) || (this.speedY !== 0) || (this.angularSpeed !== 0) || (this.heading !== tractorBeamHeadingGoal))
+        if ((this.speedX !== 0) || (this.speedY !== 0) || (this.angularSpeed !== 0) || (this.loc.heading !== tractorBeamHeadingGoal))
            return false 
-        this.loc.x += 2.0 * Math.cos(this.heading);
-        this.loc.y += 2.0 * Math.sin(this.heading);
+        this.loc.x += 2.0 * Math.cos(this.loc.heading);
+        this.loc.y += 2.0 * Math.sin(this.loc.heading);
         return this.isOutside(tractorBeamNodes) == null
     }
 
     render(sprite)
     {
-       ctx.renderSprite(this, shipImage)
+       ctx.renderSprite(this.loc, shipImage)
     }
 
 
@@ -121,8 +120,8 @@ class Ship
        let counterclockwise = false;
        if (this.angularSpeed < 0) counterclockwise = true;
        let radius = 150 * zoomScale;
-       let startAngle = this.heading; 
-       let endAngle = this.heading + this.angularSpeed * 15
+       let startAngle = this.loc.heading; 
+       let endAngle = this.loc.heading + this.angularSpeed * 15
        ctx.beginPath();
        ctx.lineWidth = 3;
        let x1 = x0 + Math.cos(startAngle) * radius / 2;
