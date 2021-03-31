@@ -1,5 +1,7 @@
 const Spin = {CLOCKWISE:1, COUNTERCLOCKWISE:-1, NOSPIN:0}
 
+var count =0
+
 function mod (x,y) { return (x%y+y)%y }
 
 class Ship
@@ -110,30 +112,29 @@ class Ship
        ctx.setTransform(1, 0, 0, 1, 0, 0);
        ctx.beginPath();
        ctx.lineWidth = 1;
-       let x0 = (offsetX + this.loc.x) * zoomScale;
-       let y0 = (offsetY + this.loc.y) * zoomScale;
-       ctx.moveTo(x0, y0);
-       ctx.lineTo(x0 + (maxX - minX) * this.speedX * zoomScale, y0 + (maxY - minY) * this.speedY * zoomScale);
+       let center = this.loc.add(new Coord(offsetX,offsetY))
+       let momentumVector = new Coord((maxX - minX) * this.speedX, (maxY - minY) * this.speedY)
+       ctx.drawLine(center, 
+                    center.add(momentumVector),
+                    zoomScale)
        ctx.strokeStyle = colorAzure;
        ctx.stroke();
 
        let counterclockwise = false;
        if (this.angularSpeed < 0) counterclockwise = true;
-       let radius = 150 * zoomScale;
+       let radius = 150
        let startAngle = this.loc.heading; 
        let endAngle = this.loc.heading + this.angularSpeed * 15
        ctx.beginPath();
        ctx.lineWidth = 3;
-       let x1 = x0 + Math.cos(startAngle) * radius / 2;
-       let y1 = y0 + Math.sin(startAngle) * radius / 2;
-       let x2 = x0 + Math.cos(startAngle) * radius;
-       let y2 = y0 + Math.sin(startAngle) * radius;
-       ctx.moveTo(x1, y1);
-       ctx.lineTo(x2, y2);
-       ctx.stroke();
+       let startArc = new Coord(startAngle)
+       ctx.drawLine(center.add(startArc.scale(0.5 * radius)), 
+                    center.add(startArc.scale(radius)),
+                    zoomScale )
+       ctx.stroke(); // ship heading vector 
 
        ctx.beginPath();
-       ctx.arc(x0, y0, radius, startAngle, endAngle, counterclockwise);
+       ctx.arc(center.x * zoomScale, center.y * zoomScale, radius * zoomScale, startAngle, endAngle, counterclockwise);
        ctx.stroke();
     }
 

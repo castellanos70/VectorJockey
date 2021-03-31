@@ -92,7 +92,10 @@ function init()
     document.documentElement.style.overflow = 'hidden';  // firefox, chrome
     canvas = document.getElementById("mainCanvas");
     ctx = canvas.getContext("2d");
-    ctx.drawLine = function (fromLoc, toLoc) {ctx.moveTo(fromLoc.x, fromLoc.y); ctx.lineTo(toLoc.x,toLoc.y) }
+    ctx.drawLine = function (fromLoc, toLoc, zoom=1) {
+       ctx.moveTo(zoom * fromLoc.x, zoom * fromLoc.y); 
+       ctx.lineTo(zoom * toLoc.x,zoom * toLoc.y) 
+    }
     ctx.renderSprite = function (anchor, sprite, rotationInc = 0)
     {
        this.setTransform(1, 0, 0, 1, 0, 0);
@@ -373,8 +376,7 @@ function renderGate(gate)
         {
             ctx.lineWidth = 3;
             ctx.beginPath();
-            ctx.moveTo(gate.x1 * zoomScale, gate.y1 * zoomScale);
-            ctx.lineTo(gate.x2 * zoomScale, gate.y2 * zoomScale);
+            ctx.drawLine(gate.left, gate.right, zoomScale)
             ctx.strokeStyle = gate.color;
             ctx.stroke();
         }
@@ -394,15 +396,11 @@ function renderBoundary(ship)
         ctx.strokeStyle = "#6309c650";
         for (const station of tractorBeamNodes)
         {
-            let x = station.loc.x * zoomScale;
-            let y = station.loc.y * zoomScale;
             for (let i = 0; i < 100; i++)
             {
                 let angle = Math.random() * 2 * Math.PI;
-                let xx = (85 * Math.cos(angle) + ship.loc.x) * zoomScale;
-                let yy = (85 * Math.sin(angle) + ship.loc.y) * zoomScale;
-                ctx.moveTo(x, y);
-                ctx.lineTo(xx, yy);
+                let target = new Coord(angle).scale(85).add(ship.loc)
+                ctx.drawLine (station.loc, target, zoomScale)
             }
         }
         ctx.stroke();
@@ -415,8 +413,9 @@ function renderBoundary(ship)
             ctx.lineWidth = thickness;
             boundaryList.forEach(
                stations=>ctx.drawLine (
-                  stations[0].loc.scale(zoomScale),
-                  stations[1].loc.scale(zoomScale)
+                  stations[0].loc,
+                  stations[1].loc,
+                  zoomScale
                ) )
             ctx.stroke();
         }

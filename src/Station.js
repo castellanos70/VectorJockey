@@ -23,6 +23,10 @@ class Coord
    {
       return new Coord (this.x*val,this.y*val, this.heading)
    }
+   add(p)
+   {
+      return new Coord (this.x+p.x,this.y+p.y, 0)
+   }
 }
 
 class Station
