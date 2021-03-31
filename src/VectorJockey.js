@@ -58,6 +58,7 @@ const GateStateEnum = {"OFF":0, "ON":1, "START_BREAKING":2, "BREAKING":3};
 const GameStateEnum = {"PLAYING":0, "WIN":1, "TRACTOR_BEAM":2};
 const OffScreenArrowEnum = {"TOP":0, "BOTTOM":1, "LEFT":2, "RIGHT":3};
 const DEGREES_TO_RAD = Math.PI/180.0;
+const DEG_15 = 15*DEGREES_TO_RAD
 
 var gameState;
 var movePending;
@@ -688,7 +689,7 @@ function checkBoundary(ship)
          infoMsg = "Tractor Beam Engaged. Thrusters temporarily disabled. Enjoy the ride.";
          infoSec = 0;
          tractorBeamNodes = stations[0]
-         tractorBeamHeadingGoal = Math.atan2(-ship.loc.y, -ship.loc.x) / DEGREES_TO_RAD;
+         tractorBeamHeadingGoal = Math.atan2(-ship.loc.y, -ship.loc.x)
          return;
     }
 }

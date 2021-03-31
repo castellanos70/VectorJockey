@@ -66,7 +66,7 @@ class ThrustSystem
         {
             ctx.scale(zoomScale, zoomScale);
             ctx.translate(offsetX+ship.loc.x, offsetY+ship.loc.y);
-            ctx.rotate(ship.heading*DEGREES_TO_RAD);
+            ctx.rotate(ship.heading);
             ctx.translate(dx, dy);
         }
         else
@@ -74,7 +74,7 @@ class ThrustSystem
             let x = (offsetX + ship.loc.x) * zoomScale;
             let y = (offsetY + ship.loc.y) * zoomScale;
             ctx.translate(x, y);
-            ctx.rotate(ship.heading*DEGREES_TO_RAD);
+            ctx.rotate(ship.heading);
             ctx.translate(dx*zoomScale, dy*zoomScale);
         }
         if (theta) ctx.rotate(theta*DEGREES_TO_RAD);
