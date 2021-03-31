@@ -26,7 +26,7 @@ class Coord
 class Station
 {
     //static totalStations = 5;
-    speed = 0.05 // radians / tick
+    speed = 0.05 // radians / second
 
     constructor(loc)
     {

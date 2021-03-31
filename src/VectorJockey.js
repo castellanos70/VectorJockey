@@ -93,6 +93,14 @@ function init()
     canvas = document.getElementById("mainCanvas");
     ctx = canvas.getContext("2d");
     ctx.drawLine = function (fromLoc, toLoc) {ctx.moveTo(fromLoc.x, fromLoc.y); ctx.lineTo(toLoc.x,toLoc.y) }
+    ctx.renderSprite = function (anchor, sprite, rotationInc = 0)
+    {
+       this.setTransform(1, 0, 0, 1, 0, 0);
+       this.scale(zoomScale, zoomScale); // zoomScale is global
+       this.translate(offsetX+anchor.loc.x, offsetY+anchor.loc.y); //offset is global
+       ctx.rotate(mod(anchor.heading + rotationInc, 2 * Math.PI)) 
+       ctx.drawImage(sprite,-sprite.width/2, -sprite.height/2);
+    }
     canvasData = undefined;
 
     shipImage.src = document.getElementById("shipImage").src;
@@ -371,7 +379,6 @@ function renderGate(gate)
             ctx.stroke();
         }
     }
-
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.scale(zoomScale, zoomScale);
     ctx.translate(offsetX+gate.x1, offsetY+gate.y1);
@@ -423,15 +430,9 @@ function renderBoundary(ship)
             ctx.stroke();
         }
     }
-    for (const station of stationList)
-    {
-        ctx.setTransform(1, 0, 0, 1, 0, 0);
-        ctx.scale(zoomScale, zoomScale);
-        ctx.translate(offsetX+station.loc.x, offsetY+station.loc.y);
-        ctx.rotate(station.heading + station.speed * (clockSec % 360) )
-        ctx.drawImage(stationImage, -stationImage.width / 2, -stationImage.height / 2);
-    }
+    stationList.forEach(station => ctx.renderSprite(station, stationImage, station.speed * clockSec))
 }
+
 
 const zip = (a,b,c) => a.map ((k,i) => [k, b[i], c[i]]);
 

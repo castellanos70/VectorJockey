@@ -102,12 +102,9 @@ class Ship
 
     render(sprite)
     {
-       ctx.setTransform(1, 0, 0, 1, 0, 0);
-       ctx.scale(zoomScale, zoomScale);
-       ctx.translate(offsetX+this.loc.x, offsetY+this.loc.y);
-       ctx.rotate(this.heading)
-       ctx.drawImage(sprite,-shipImage.width/2, -shipImage.height/2);
+       ctx.renderSprite(this, shipImage)
     }
+
 
     renderMotionVector()
     {
