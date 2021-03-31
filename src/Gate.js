@@ -12,8 +12,8 @@ class Gate
         let rheading = heading * DEGREES_TO_RAD
         let dx = Math.round(0.5*distance*Math.cos(rheading));
         let dy = Math.round(0.5*distance*Math.sin(rheading));
-        this.left = new Coord(x-dx, y-dy, rheading )
-        this.right = new Coord(x+dx, y+dy, rheading + Math.PI)
+        this.left = new Coord(x-dx, y-dy, rheading - Math.PI/2)
+        this.right = new Coord(x+dx, y+dy, rheading + Math.PI/2)
 
         this.slope = dy/dx;
         this.yIntercept = y - this.slope*x;

@@ -4,16 +4,16 @@ function mod (x,y) { return (x%y+y)%y }
 
 class Ship
 {
-    constructor(loc, forwardThrust, thrust)
+    constructor(loc = new Coord(0,0), forwardThrust = false, thrust = thrusts)
     {
-        this.loc = loc;
-        this.forwardThrust = forwardThrust // bool
+        this.loc = loc 
+        this.forwardThrust = forwardThrust 
         this.spinThrust= Spin.NOSPIN
         this.angularSpeed = 0 // in radians per pulse
         this.speedX = 0
         this.speedY = 0
-        // Shared between all ships as a memory optimization, though not perfectly accurate
-        this.thrust = thrust
+       // Shared between all ships as a memory optimization, though not perfectly accurate
+        this.thrust = thrust 
     }
 
     clone() {

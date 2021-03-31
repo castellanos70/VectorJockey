@@ -115,7 +115,7 @@ function init()
     canvasImage = ctx.getImageData(0, 0, canvasWidth, canvasHeight);
 
     thrusts = new ThrustSystems()
-    animationShip = new Ship(new Coord(0,0), false, thrusts);
+    animationShip = new Ship()
 
     let y = canvasHeight;
     gradientArrowBot = ctx.createLinearGradient(0,y - arrowLength, 0, y-arrowOffset[0]);
@@ -379,8 +379,8 @@ function renderGate(gate)
             ctx.stroke();
         }
     }
-    ctx.renderSprite(gate.left, gateImage, -Math.PI/2)
-    ctx.renderSprite(gate.right, gateImage, Math.PI/2)
+    ctx.renderSprite(gate.left, gateImage)
+    ctx.renderSprite(gate.right, gateImage)
 }
 
 function renderBoundary(ship)
