@@ -428,7 +428,7 @@ function renderBoundary(ship)
         ctx.setTransform(1, 0, 0, 1, 0, 0);
         ctx.scale(zoomScale, zoomScale);
         ctx.translate(offsetX+station.loc.x, offsetY+station.loc.y);
-        ctx.rotate((3 * (clockSec % 360) + station.heading) * DEGREES_TO_RAD);
+        ctx.rotate(station.heading + station.speed * (clockSec % 360) )
         ctx.drawImage(stationImage, -stationImage.width / 2, -stationImage.height / 2);
     }
 }
