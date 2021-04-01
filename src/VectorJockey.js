@@ -93,16 +93,16 @@ function init()
     canvas = document.getElementById("mainCanvas");
     ctx = canvas.getContext("2d");
     ctx.drawLine = function (fromLoc, toLoc, zoom=1) {
-       ctx.moveTo(zoom * fromLoc.x, zoom * fromLoc.y); 
-       ctx.lineTo(zoom * toLoc.x,zoom * toLoc.y) 
+       this.moveTo(zoom * fromLoc.x, zoom * fromLoc.y); 
+       this.lineTo(zoom * toLoc.x,zoom * toLoc.y) 
     }
     ctx.renderSprite = function (anchor, sprite, rotationInc = 0)
     {
        this.setTransform(1, 0, 0, 1, 0, 0);
        this.scale(zoomScale, zoomScale); // zoomScale is global
        this.translate(offsetX+anchor.x, offsetY+anchor.y); //offset is global
-       ctx.rotate(mod(anchor.heading + rotationInc, 2 * Math.PI)) 
-       ctx.drawImage(sprite,-sprite.width/2, -sprite.height/2);
+       this.rotate(mod(anchor.heading + rotationInc, 2 * Math.PI)) 
+       this.drawImage(sprite,-sprite.width/2, -sprite.height/2);
     }
     canvasData = undefined;
 
