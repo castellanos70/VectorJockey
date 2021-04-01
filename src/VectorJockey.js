@@ -20,6 +20,8 @@ var gameTime;
 var isDrag, dragX, dragY;
 
 var zoomScale, zoomGoal, zoomOrg, zoomTime;
+var tractorBeams = Array (100)
+tractorBeams.fill(true)
 const ZOOM_MAX = 1.0;
 const ZOOM_MIN = 0.1;
 
@@ -337,10 +339,7 @@ function render()
     }
     ship.renderThrust(false);
 
-    for (const gate of gateList)
-    {
-        renderGate(gate);
-    }
+    gateList.forEach(gate => renderGate(gate))
     renderBoundary(ship);
     ship.renderMotionVector();
 
@@ -396,12 +395,11 @@ function renderBoundary(ship)
         ctx.strokeStyle = "#6309c650";
         for (const station of tractorBeamNodes)
         {
-            for (let i = 0; i < 100; i++)
-            {
-                let angle = Math.random() * 2 * Math.PI;
-                let target = new Coord(angle).scale(85).add(ship.loc)
-                ctx.drawLine (station.loc, target, zoomScale)
-            }
+            tractorBeams.forEach(beam => 
+                ctx.drawLine (station.loc, 
+                     ship.loc.add(new Coord(Math.random() * 2 * Math.PI).scale(85)),
+                     zoomScale)
+            )
         }
         ctx.stroke();
     }
