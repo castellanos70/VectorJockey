@@ -72,7 +72,7 @@ class Ship
 
     isOutside (stations)
     {
-       return this.loc.cross(stations) > 0 ? stations : null
+       return this.loc.cross(stations[0].loc, stations[1].loc) > 0 ? stations : null
     }
 
     getAngleOneDegreeToGoal(angle, goal)

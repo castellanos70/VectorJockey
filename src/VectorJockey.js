@@ -628,44 +628,22 @@ function zoom(code)
     //console.info("zoomGoal=" + zoomGoal)
 }
 
+// check if point0 & point1 are on opposite sides of the (infinite) line
+function splitsPoints(lineLeft,lineRight,point0, point1) {
+       return Math.sign(point0.cross(lineLeft,lineRight)) 
+          != Math.sign(point1.cross(lineLeft, lineRight))
+}
 
 function updateGates(ship0, ship)
 {
-    for (const gate of gateList)
-    {
-        let clearedGate = false;
-        let gateMinX = Math.min(gate.left.x,gate.right.x);
-        let gateMaxX = Math.max(gate.left.x,gate.right.x);
-        let gateMinY = Math.min(gate.left.y,gate.right.y);
-        let gateMaxY = Math.max(gate.left.y,gate.right.y);
-        if ((gateMinX > ship0.loc.x) && (gateMinX > ship.loc.x)) continue;
-        if ((gateMinY > ship0.loc.y) && (gateMinY > ship.loc.y)) continue;
-        if ((gateMaxX < ship0.loc.x) && (gateMaxX < ship.loc.x)) continue;
-        if ((gateMaxY < ship0.loc.y) && (gateMaxY < ship.loc.y)) continue;
-
-        let yy0 = gate.slope * ship0.loc.x + gate.yIntercept;
-        let yy  = gate.slope * ship.loc.x + gate.yIntercept;
-        if (ship0.loc.y <= yy0)
-        {
-            if (ship.loc.y >= yy)
-            {
-                if (gate.state == GateStateEnum.ON) clearedGate = true;
-            }
-        }
-        if (ship0.loc.y >= yy0)
-        {
-            if (ship.loc.y <= yy)
-            {
-                if (gate.state == GateStateEnum.ON) clearedGate = true;
-            }
-        }
-        if (clearedGate == true)
-        {
+    gateList
+      .filter(gate => gate.state == GateStateEnum.ON 
+            && splitsPoints(gate.left, gate.right, ship.loc, ship0.loc)
+            && splitsPoints(ship.loc, ship0.loc, gate.left, gate.right))
+      .forEach(gate =>  {
             gatesCompleted++;
             gate.state = GateStateEnum.START_BREAKING;
-            currentLevel.clearedGate();
-        }
-    }
+            currentLevel.clearedGate() } )
 }
 
 function checkBoundary(ship)
