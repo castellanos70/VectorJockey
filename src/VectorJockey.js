@@ -634,10 +634,10 @@ function updateGates(ship0, ship)
     for (const gate of gateList)
     {
         let clearedGate = false;
-        let gateMinX = Math.min(gate.x1,gate.x2);
-        let gateMaxX = Math.max(gate.x1,gate.x2);
-        let gateMinY = Math.min(gate.y1,gate.y2);
-        let gateMaxY = Math.max(gate.y1,gate.y2);
+        let gateMinX = Math.min(gate.left.x,gate.right.x);
+        let gateMaxX = Math.max(gate.left.x,gate.right.x);
+        let gateMinY = Math.min(gate.left.y,gate.right.y);
+        let gateMaxY = Math.max(gate.left.y,gate.right.y);
         if ((gateMinX > ship0.loc.x) && (gateMinX > ship.loc.x)) continue;
         if ((gateMinY > ship0.loc.y) && (gateMinY > ship.loc.y)) continue;
         if ((gateMaxX < ship0.loc.x) && (gateMaxX < ship.loc.x)) continue;
