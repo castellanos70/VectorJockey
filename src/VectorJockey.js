@@ -245,11 +245,9 @@ function initLevel(level)
 
     shipList=[];
     gateList=[];
-    maxX = currentLevel.init();
-
     stationList = [];
     boundaryList = [];
-    createBoundaryList(maxX) 
+    currentLevel.init();
 
     infoMsg = currentLevel.getNextHelpMsg(null)
     infoSec = 0;

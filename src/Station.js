@@ -34,7 +34,6 @@ function createBoundaryList(maxX)
    stationList = new Array(5).fill(0).map(
       (v,k,a) => new Station(new Coord(k * 2.0 * Math.PI / 5.0).scale(maxX)))
    boundaryList = zip2(stationList, stationList.slice(1).concat([stationList[0]]))
-   console.info(boundaryList)
 }
 
 class Station

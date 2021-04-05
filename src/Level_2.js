@@ -20,7 +20,7 @@ class Level_2
         gateList.push(new Gate(-1200, -2200, 165, 500, "#fd7f0290"));
         gateList.push(new Gate(1200, -1900, 50, 500, "#2832c290"));
 
-        return maxX
+        createBoundaryList(maxX)
     }
 
 
