@@ -20,18 +20,7 @@ class Level_2
         gateList.push(new Gate(-1200, -2200, 165, 500, "#fd7f0290"));
         gateList.push(new Gate(1200, -1900, 50, 500, "#2832c290"));
 
-        let lastStation;
-        for (let k = 0; k < 5; k++)
-        {
-            let x = maxX * Math.cos(k * 2.0 * Math.PI / 5.0);
-            let y = maxY * Math.sin(k * 2.0 * Math.PI / 5.0);
-
-            let station = new Station(new Coord(x,y));
-            stationList.push(station)
-            if (k>0) boundaryList.push([lastStation, station])
-            lastStation = station
-        }
-        boundaryList.push([lastStation, stationList[0]])
+        return maxX
     }
 
 

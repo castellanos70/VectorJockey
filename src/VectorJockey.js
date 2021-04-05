@@ -231,11 +231,6 @@ function initLevel(level)
     offsetX = (canvasWidth / 2.0) * shiftFactor + offsetX;
     offsetY = (canvasHeight / 2.0) * shiftFactor + offsetY;
 
-    shipList=[];
-    gateList=[];
-    stationList = [];
-    boundaryList = [];
-
     gameState = GameStateEnum.PLAYING;
     movePending = false;
     renderStarsOffCanvas();
@@ -248,7 +243,14 @@ function initLevel(level)
         statusLineList[3][i] = randomChar(msgNoise);
     }
 
-    currentLevel.init();
+    shipList=[];
+    gateList=[];
+    maxX = currentLevel.init();
+
+    stationList = [];
+    boundaryList = [];
+    createBoundaryList(maxX) 
+
     infoMsg = currentLevel.getNextHelpMsg(null)
     infoSec = 0;
 }
@@ -628,18 +630,17 @@ function zoom(code)
     //console.info("zoomGoal=" + zoomGoal)
 }
 
-// check if point0 & point1 are on opposite sides of the (infinite) line
-function splitsPoints(lineLeft,lineRight,point0, point1) {
-       return Math.sign(point0.cross(lineLeft,lineRight)) 
-          != Math.sign(point1.cross(lineLeft, lineRight))
+function isConvex(xs) {
+   return xs
+         .map( (pt, i, xs) => pt.cross(xs[(i+2) % xs.length],xs[(i+1) % xs.length]))
+         .every((x, i, xs) => Math.sign(x)===Math.sign(xs[0]))
 }
 
 function updateGates(ship0, ship)
 {
     gateList
       .filter(gate => gate.state == GateStateEnum.ON 
-            && splitsPoints(gate.left, gate.right, ship.loc, ship0.loc)
-            && splitsPoints(ship.loc, ship0.loc, gate.left, gate.right))
+                   && isConvex([gate.left,ship.loc,gate.right,ship0.loc]))
       .forEach(gate =>  {
             gatesCompleted++;
             gate.state = GateStateEnum.START_BREAKING;

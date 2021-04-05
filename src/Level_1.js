@@ -20,15 +20,7 @@ class Level_1
         gateList.push(new Gate(-700, 400, 45, 600, "#d181d990"));
         gateList.push(new Gate(100, 700, 165, 500, "#fd7f0290"));
 
-        let lastStation;
-        for (let k = 0; k < 5; k++)
-        {
-            let station = new Station((new Coord(k * 2.0 * Math.PI / 5.0)).scale(maxX))
-            stationList.push(station)
-            if (k>0) boundaryList.push([lastStation, station])
-            lastStation = station
-        }
-        boundaryList.push([lastStation, stationList[0]])
+        return maxX
     }
 
     clearedGate()
