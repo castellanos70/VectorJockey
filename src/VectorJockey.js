@@ -235,13 +235,8 @@ function initLevel(level)
     movePending = false;
     renderStarsOffCanvas();
 
-    for (let i = 0; i < statusLineList[0].length; i++)
-    {
-        statusLineList[0][i] = randomChar(msgNoise);
-        statusLineList[1][i] = randomChar(msgNoise);
-        statusLineList[2][i] = randomChar(msgNoise);
-        statusLineList[3][i] = randomChar(msgNoise);
-    }
+    statusLineList = statusLineList.map(
+      line => line.fill(0).map(x => randomChar(msgNoise)))
 
     shipList=[];
     gateList=[];
