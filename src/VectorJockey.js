@@ -401,9 +401,9 @@ function renderBoundary(ship)
     else
     {
         ctx.strokeStyle = "#6309c6A0";
-        for (let thickness = 1; thickness <= 3; thickness += 2)
+//        for (let thickness = 1; thickness <= 3; thickness += 2)
         {
-            ctx.lineWidth = thickness;
+            ctx.lineWidth = 3;
             boundaryList.forEach(
                stations=>ctx.drawLine (
                   stations[0].loc,
