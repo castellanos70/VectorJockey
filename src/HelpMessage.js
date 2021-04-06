@@ -152,7 +152,7 @@ function displayStatus(ship)
             "Gates: " + String(gatesCompleted),
             "Time: " + String(gameTime),
             "Linear Speed: " + speed.toFixed(1) + " m/s",
-            "Forward: " + (ship.heading/DEGREES_TO_RAD).toFixed(1) + "°"
+            "Forward: " + (ship.loc.heading / DEGREES_TO_RAD).toFixed(1) + "°"
         ];
 
     for (let i = 0; i < tmpStatus.length; i++)

@@ -78,7 +78,7 @@ class Ship
     getAngleOneDegreeToGoal(angle, goal)
     {
        if (mod(Math.abs(angle - goal), 2*Math.PI) < 1.1 * DEGREES_TO_RAD) return goal 
-       return angle + Math.sign(mod(angle-goal,2*Math.PI) - Math.PI) * DEGREES_TO_RAD // i.e. one degree change
+       return angle + ((mod(angle-goal,2*Math.PI) - Math.PI) < 0 ? -1 : 1) * DEGREES_TO_RAD // i.e. one degree change
     }
 
     // return true for back inside of beams
