@@ -94,7 +94,8 @@ function init()
     document.documentElement.style.overflow = 'hidden';  // firefox, chrome
     canvas = document.getElementById("mainCanvas");
     ctx = canvas.getContext("2d");
-    ctx.drawLine = function (fromLoc, toLoc, zoom=1) {
+    ctx.drawLine = function (fromLoc, toLoc, zoom=1, thickness=1) {
+       this.linewidth = thickness
        this.moveTo(zoom * fromLoc.x, zoom * fromLoc.y); 
        this.lineTo(zoom * toLoc.x,zoom * toLoc.y) 
     }
@@ -368,9 +369,8 @@ function renderGate(gate)
         }
         else if (gate.state == GateStateEnum.ON)
         {
-            ctx.lineWidth = 3;
             ctx.beginPath();
-            ctx.drawLine(gate.left, gate.right, zoomScale)
+            ctx.drawLine(gate.left, gate.right, zoomScale, thickness=3)
             ctx.strokeStyle = gate.color;
             ctx.stroke();
         }
@@ -383,35 +383,32 @@ function renderBoundary(ship)
 {
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.translate(offsetX * zoomScale, offsetY * zoomScale);
-    ctx.lineWidth = 1;
     ctx.beginPath();
     if (gameState === GameStateEnum.TRACTOR_BEAM)
     {
         ctx.strokeStyle = "#6309c650";
-        for (const station of tractorBeamNodes)
-        {
+        tractorBeamNodes.forEach(station =>
             tractorBeams.forEach(beam => 
                 ctx.drawLine (station.loc, 
                      ship.loc.add(new Coord(Math.random() * 2 * Math.PI).scale(85)),
                      zoomScale)
             )
-        }
+        )
         ctx.stroke();
     }
     else
     {
         ctx.strokeStyle = "#6309c6A0";
-//        for (let thickness = 1; thickness <= 3; thickness += 2)
-        {
-            ctx.lineWidth = 3;
+        [1,3].forEach(thickness =>
             boundaryList.forEach(
                stations=>ctx.drawLine (
                   stations[0].loc,
                   stations[1].loc,
-                  zoomScale
+                  zoomScale,
+                  thickness = thickness
                ) )
+            )
             ctx.stroke();
-        }
     }
     stationList.forEach(station => 
       ctx.renderSprite(station.loc, stationImage, station.speed * clockSec))
@@ -431,10 +428,9 @@ function renderOffScreenArrow(direction)
         ctx.beginPath();
         ctx.lineWidth = arrowWidth;
         ctx.moveTo(x + p0[0],y + p0[1])
-        for (const point of arrows)
-        {
+        arrows.forEach(point =>
            ctx.lineTo(x + point[0],y + point[1])
-        }
+        )
         ctx.stroke();
         ctx.globalAlpha = 1;
     }
