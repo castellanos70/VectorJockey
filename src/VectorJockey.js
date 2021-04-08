@@ -95,9 +95,11 @@ function init()
     canvas = document.getElementById("mainCanvas");
     ctx = canvas.getContext("2d");
     ctx.drawLine = function (fromLoc, toLoc, zoom=1, thickness=1) {
-       this.linewidth = thickness
+       ctx.beginPath();
+       this.lineWidth = thickness
        this.moveTo(zoom * fromLoc.x, zoom * fromLoc.y); 
        this.lineTo(zoom * toLoc.x,zoom * toLoc.y) 
+       ctx.stroke();
     }
     ctx.renderSprite = function (anchor, sprite, rotationInc = 0)
     {
@@ -369,10 +371,8 @@ function renderGate(gate)
         }
         else if (gate.state == GateStateEnum.ON)
         {
-            ctx.beginPath();
-            ctx.drawLine(gate.left, gate.right, zoomScale, thickness=3)
             ctx.strokeStyle = gate.color;
-            ctx.stroke();
+            ctx.drawLine(gate.left, gate.right, zoomScale, thickness=3)
         }
     }
     ctx.renderSprite(gate.left, gateImage)
@@ -383,7 +383,6 @@ function renderBoundary(ship)
 {
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.translate(offsetX * zoomScale, offsetY * zoomScale);
-    ctx.beginPath();
     if (gameState === GameStateEnum.TRACTOR_BEAM)
     {
         ctx.strokeStyle = "#6309c650";
@@ -394,7 +393,6 @@ function renderBoundary(ship)
                      zoomScale)
             )
         )
-        ctx.stroke();
     }
     else
     {
@@ -408,7 +406,6 @@ function renderBoundary(ship)
                   thickness = thickness
                ) )
             )
-            ctx.stroke();
     }
     stationList.forEach(station => 
       ctx.renderSprite(station.loc, stationImage, station.speed * clockSec))
