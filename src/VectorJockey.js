@@ -15,9 +15,6 @@ var shipList, gateList, stationList, boundaryList;
 var starList = undefined;
 var currentLevel, level1, level2;
 
-var shipSpeedX;
-var shipSpeedY;
-var shipAngularSpeed;
 var gatesCompleted;
 var gameTime;
 var isDrag, dragX, dragY;
@@ -57,14 +54,12 @@ const KEY_MINUS_CHROME = 189; //and Edge
 const KEY_ESC = 27;
 
 //ShipStateEnum are powers of 2 so bitwise or can turn on multiple at once.
-const ShipStateEnum = {"OFF":0, "BACK":1, "CLOCKWISE":2, "COUNTERCLOCKWISE":4};
 const GateStateEnum = {"OFF":0, "ON":1, "START_BREAKING":2, "BREAKING":3};
 const GameStateEnum = {"PLAYING":0, "WIN":1, "TRACTOR_BEAM":2};
 const OffScreenArrowEnum = {"TOP":0, "BOTTOM":1, "LEFT":2, "RIGHT":3};
 const DEGREES_TO_RAD = Math.PI/180.0;
 
 var gameState;
-var shipState;
 var movePending;
 var clockSec;
 var tractorBeamNodes = [];
@@ -110,7 +105,7 @@ function init()
     canvasImage = ctx.getImageData(0, 0, canvasWidth, canvasHeight);
 
     thrusts = new ThrustSystems()
-    animationShip = new Ship(new Coord(0,0),0,ShipStateEnum.OFF,thrusts);
+    animationShip = new Ship(new Coord(0,0),0, false, thrusts);
 
     let y = canvasHeight;
     gradientArrowBot = ctx.createLinearGradient(0,y - arrowLength, 0, y-arrowOffset[0]);
@@ -227,7 +222,6 @@ function initLevel(level)
     boundaryList = [];
 
     gameState = GameStateEnum.PLAYING;
-    shipState = ShipStateEnum.OFF;
     movePending = false;
     renderStarsOffCanvas();
 
@@ -240,7 +234,7 @@ function initLevel(level)
     }
 
     currentLevel.init();
-    infoMsg = currentLevel.getNextHelpMsg()
+    infoMsg = currentLevel.getNextHelpMsg(null)
     infoSec = 0;
 }
 
@@ -266,29 +260,13 @@ function render()
     if (gameState == GameStateEnum.TRACTOR_BEAM)
     {
         movePending = true;
-        shipState = ShipStateEnum.OFF;
 
-        shipSpeedX *= 0.95;
-        shipSpeedY *= 0.95;
-        shipAngularSpeed *= 0.9;
-
-        ship.heading = getAngleOneDegreeToGoal(ship.heading, tractorBeamHeadingGoal);
-
-        if (Math.abs(shipSpeedX) < 1) shipSpeedX = 0;
-        if (Math.abs(shipSpeedY) < 1) shipSpeedY = 0;
-        if (Math.abs(shipAngularSpeed) < 1) shipAngularSpeed = 0;
-
-        if ((shipSpeedX === 0) && (shipSpeedY === 0) && (shipAngularSpeed === 0) && (ship.heading === tractorBeamHeadingGoal))
+        if (ship.tractor()) 
         {
-            ship.loc.x += 2.0 * Math.cos(ship.heading * DEGREES_TO_RAD);
-            ship.loc.y += 2.0 * Math.sin(ship.heading * DEGREES_TO_RAD);
-            if (ship.isOutside(tractorBeamNodes) == null)
-            {
-                gameState = GameStateEnum.PLAYING;
-                infoMsg = "Tractor Beam Off.    You may resume control of ship.";
-                infoSec = 0;
-                isCommandVisible = true;
-            }
+           gameState = GameStateEnum.PLAYING;
+           infoMsg = "Tractor Beam Off.    You may resume control of ship.";
+           infoSec = 0;
+           isCommandVisible = true;
         }
     }
 
@@ -297,32 +275,18 @@ function render()
         movePending = false;
         gameTime++;
         if (gameTime === 1000) isShipFullHistory = false;
-        if (Math.abs(shipSpeedX) < 0.0001) shipSpeedX = 0;
-        if (Math.abs(shipSpeedY) < 0.0001) shipSpeedY = 0;
-        if (Math.abs(shipAngularSpeed) < 4) shipAngularSpeed = 0;
-        let ship0 = ship;
-        let shipX = ship0.loc.x + shipSpeedX;
-        let shipY = ship0.loc.y + shipSpeedY;
-        let heading = ship0.heading + shipAngularSpeed;
-        if (heading <= -180) heading = 360 + heading;
-        else if (heading > 180) heading = heading - 360;
-        ship = new Ship(new Coord(shipX, shipY), heading, shipState, thrusts);
+        if (ship.heading <= -180) ship.heading = 360 + ship.heading
+        else if (ship.heading > 180) ship.heading = ship.heading - 360
+        let ship0 = ship
+        ship = ship.clone()
+        ship.computeNewPos()
         shipList.push(ship);
         updateGates(ship0, ship);
         checkBoundary(ship);
-        if (shipState & ShipStateEnum.COUNTERCLOCKWISE)
-        {
-            shipState = shipState - ShipStateEnum.COUNTERCLOCKWISE;
-        }
-        if (shipState & ShipStateEnum.CLOCKWISE)
-        {
-            shipState = shipState - ShipStateEnum.CLOCKWISE;
-        }
     }
 
     ctx.putImageData(canvasImage, 0, 0);
 
-    ship.state = shipState;
     if (isShipFullHistory)
     {
         let startIdx = ((gameState === GameStateEnum.PLAYING) &&(shipList.length > 2500)) ?
@@ -356,11 +320,11 @@ function render()
                 animationShip.heading = (tmpShip1.heading * (0.1 - deltaSec) + tmpShip2.heading * deltaSec) / 0.1;
             }
             animationShip.render(shipGhostImage);
-            animationShip.renderThrust(ShipStateEnum, true);
+            animationShip.renderThrust(true);
         }
-        ship.render(shipImage, shipImage);
+        ship.render(shipImage);
     }
-    ship.renderThrust(ShipStateEnum, false);
+    ship.renderThrust(false);
 
     for (const gate of gateList)
     {
@@ -379,7 +343,7 @@ function render()
     {
         displayStatus(ship);
         if (isCommandVisible) displayCommands(ship);
-        displayMessage();
+        displayMessage(ship);
         if (isDisplayTitle) displayTitle();
     }
 
@@ -560,39 +524,19 @@ function keyDown(event)
 
     if ((event.keyCode == KEY_W) && (gameState == GameStateEnum.PLAYING))
     {
-        if (shipState & ShipStateEnum.BACK) shipState = shipState - ShipStateEnum.BACK;
-        else
-        {
-            shipState = shipState | ShipStateEnum.BACK;
-            thrusts.respawnMainThrust()
-        }
+       ship0.toggleForwardThrusters()
     }
     else if ((event.keyCode == KEY_A) && (gameState == GameStateEnum.PLAYING))
     {
-        if (shipState & ShipStateEnum.COUNTERCLOCKWISE) shipState = shipState - ShipStateEnum.COUNTERCLOCKWISE;
-        else if (shipAngularSpeed > -15)
-        {
-            shipState = shipState | ShipStateEnum.COUNTERCLOCKWISE;
-            thrusts.respawnSideThrust();
-            if (shipState & ShipStateEnum.CLOCKWISE) shipState = shipState - ShipStateEnum.CLOCKWISE;
-        }
-        else
+        if (!(ship0.toggleSideThrusters(Spin.COUNTERCLOCKWISE)) )
         {
             infoMsg = "Counterclockwise thrusters disabled. Maximum safe angular speed: 15°/timestep.";
             infoSec = 0;
         }
-
     }
     else if ((event.keyCode == KEY_D) && (gameState == GameStateEnum.PLAYING))
     {
-        if (shipState & ShipStateEnum.CLOCKWISE) shipState = shipState - ShipStateEnum.CLOCKWISE;
-        else if (shipAngularSpeed < 15)
-        {
-            shipState = shipState | ShipStateEnum.CLOCKWISE;
-            thrusts.respawnSideThrust();
-            if (shipState & ShipStateEnum.COUNTERCLOCKWISE) shipState = shipState - ShipStateEnum.COUNTERCLOCKWISE;
-        }
-        else
+        if (!(ship0.toggleSideThrusters(Spin.CLOCKWISE)) )
         {
             infoMsg = "Clockwise thrusters disabled. Maximum safe angular speed: 15°/timestep.";
             infoSec = 0;
@@ -600,7 +544,7 @@ function keyDown(event)
     }
     else if ((event.keyCode == KEY_SPACE) && (gameState == GameStateEnum.PLAYING))
     {
-        if ((shipSpeedX === 0) && (shipSpeedY === 0) && (shipAngularSpeed === 0) && shipState === ShipStateEnum.OFF)
+        if (!(ship0.isMoving()) )
         {
             isCommandVisible = true;
             infoMsg = "Ship is at Rest. Activate a Thruster.";
@@ -608,22 +552,7 @@ function keyDown(event)
         }
         else
         {
-            if (shipState & ShipStateEnum.BACK)
-            {
-                shipSpeedX += Math.cos(ship0.heading * DEGREES_TO_RAD)
-                shipSpeedY += Math.sin(ship0.heading * DEGREES_TO_RAD)
-            }
-            if (shipState & ShipStateEnum.COUNTERCLOCKWISE)
-            {
-                shipAngularSpeed -= 5;
-                if (shipAngularSpeed <= -15) shipAngularSpeed = -15;
-
-            }
-            if (shipState & ShipStateEnum.CLOCKWISE)
-            {
-                shipAngularSpeed += 5;
-                if (shipAngularSpeed >= 15) shipAngularSpeed = 15;
-            }
+            ship0.computeNewSpeed()
             movePending = true;
         }
     }
@@ -774,27 +703,6 @@ function checkBoundary(ship)
          if (tractorBeamHeadingGoal === -180) tractorBeamHeadingGoal = 180;
          return;
     }
-}
-
-function getAngleOneDegreeToGoal(angle, goal)
-{
-
-    if (Math.abs(angle - goal) <= 1.1) return goal;
-
-    if (goal >= 0)
-    {
-        if (angle > goal) return angle - 1;
-        if (goal - angle <= 180) return angle + 1;
-        angle--;
-        if (angle <= -179.5) return 180;
-        return angle;
-    }
-
-    if (angle < goal) return angle + 1;
-    if (angle - goal <= 180) return angle - 1;
-    angle++;
-    if (angle > 180) return -179;
-    return angle;
 }
 
 
